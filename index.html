@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>MyPictures</title>
+  <style>
+    html, body {
+      box-sizing: border-box;
+      font-size: 62.5%;
+      height: 100%;
+      margin: 0;
+      width: 100%;
+    }
+
+    body {
+      align-items: center;
+      display: flex;
+      font-size: 1.6rem;
+      justify-content: center;
+    }
+
+    .library-new,
+    .library-view {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      height: 80%;
+      justify-content: center;
+      width: 80%;
+    }
+
+    .dnd-container {
+      background-color: rgba(100, 100, 255, 0.05);
+      border: solid 3px rgba(127, 127, 127, 0.15);
+      border-radius: 5px;
+      height: 50%;
+      width: 70%;
+    }
+
+    .dnd-container::before {
+      content: 'Drag a JSON report file in here...';
+      display: block;
+      font-size: 1.6rem;
+      font-style: italic;
+      height: auto;
+      text-align: center;
+      transform: translateY(50%);
+      width: 100%;
+    }
+
+    .library-view {
+      display: none;
+      flex-direction: row;
+      height: 100%;
+      width: 100%;
+    }
+
+    .tree-list-container {
+      height: 100%;
+      overflow: auto;
+      width: 290px;
+    }
+
+    .scene {
+      border-left: solid 1px grey;
+      height: 100%;
+      overflow: auto;
+      width: calc(100% - 290px);
+    }
+
+    .browser {
+      display: grid;
+      grid-template-columns: repeat(6, auto);
+      grid-gap: 15px;
+      padding: 15px;
+    }
+
+    .browser div {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 140px;
+      justify-content: center;
+      max-width: 200px;
+    }
+
+    .browser div svg {
+      height: 50px;
+      width: 50px;
+    }
+    /* TreeList css */
+    .tree-list{box-sizing:border-box;font-family:Helvetica, sans-serif;font-size:14px;line-height:19.6px;margin:0;padding:5px}.tree-list .tree-list-node{box-sizing:border-box;clear:both;cursor:pointer;display:inline-block;float:left;position:relative}.tree-list .tree-list-node .vector{height:15px;left:2px;margin:0;position:absolute;top:2px;width:15px}.tree-list .tree-list-node .vector svg{height:15px;transform:scale(0.8);width:15px}.tree-list .tree-list-node p{background:rgba(0,0,0,0.1);border-radius:2px;clear:both;font-size:.85em;float:left;line-height:20px;margin:0;margin-bottom:3px;margin-left:20px;max-width:100%;padding:0 5px;white-space:nowrap}.tree-list .tree-list-node p:hover{color:red}.tree-list .tree-list-node .tree-list-node.tree-list-node{margin-left:15px;width:auto}
+  </style>
+</head>
+<body>
+  <div class="library-new">
+    <h1>MyPictures</h1>
+    <div class="dnd-container"></div>
+  </div>
+  <div class="library-view">
+    <div class="tree-list-container">
+
+    </div>
+    <div class="scene">
+      <div class="browser">
+
+      </div>
+    </div>
+  </div>
+  <!-- Icons from flaticon ! -->
+  <svg id="folder-icon" style="display:none" enable-background="new 0 0 468.293 468.293" version="1.1" viewBox="0 0 468.29 468.29" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <path d="m29.525 50.447h112c7.335 0 14.11 3.918 17.77 10.274l18.433 25.181c3.66 6.356 10.436 10.274 17.77 10.274h272.8v287.5c0 15.099-12.241 27.34-27.34 27.34h-413.61c-15.099 0-27.34-12.241-27.34-27.34v-255.6c0-21.133 3.265-42.14 9.68-62.276 2.35-9.037 10.508-15.345 19.845-15.345z" fill="#F6C358"/>
+    <rect x="42.615" y="91.473" width="359.96" height="152.06" fill="#EBF0F3"/>
+    <path d="m447.79 64.117h-112.86c-8.026 0-15.315 4.683-18.65 11.983l-19.313 42.267c-3.336 7.3-10.624 11.983-18.65 11.983h-278.31v260.16c0 15.099 12.241 27.34 27.34 27.34h413.61c15.099 0 27.34-12.241 27.34-27.34v-305.88c0-11.324-9.181-20.505-20.505-20.505z" fill="#FCD462"/>
+  </svg>
+</body>
+<script type="module">
+'use strict';
+/* TreeList Js */
+class TreeListNode {
+	constructor(options = {}) {
+    // Prevent wrong type for arguments, fallback according to attribute utility
+    if (typeof options.id !== 'number') {
+      options.id = -1;
+    }
+    if (typeof options.name !== 'string') {
+      options.name = 'Invalid model item';
+    }
+    if (typeof options.depth !== 'number') {
+      options.depth = -1;
+    }
+    if (typeof options.clicked !== 'function') {
+      options.clicked = undefined;
+    }
+		this._id = options.id;
+		this._name = options.name;
+		this._depth = options.depth;
+		this._clicked = options.clicked;
+		this._isLeaf = false;
+		this._isExpanded = false;
+    this._data = options.data;
+		this._children = [];
+		this._dom = {
+			container: null,
+			label: null,
+			expander: null,
+			icon: null,
+			iconPath: null
+		};
+		// Collapse/Expand svg pathes
+    /** @private
+     * @member {object} - Expand/Collapse icon svg pathes */
+		this._svgPath = {
+			expand: 'M 15.000348,6.2497966 H 8.7502034 V -3.4865e-4 H 6.2501452 V 6.2497966 H 0 V 8.7498548 H 6.2501452 V 15 H 8.7502034 V 8.7498548 h 6.2501446 z',
+			collapse: 'M 0,6.2493128 H 15.004124 V 8.7506872 H -0.0041235 z'
+		};
+		// Event binding for proper remove listener on destroy node
+		this._onNodeClick = this._onNodeClick.bind(this);
+		this._onNodeToggle = this._onNodeToggle.bind(this);
+		// Build the node DOM with its internal info
+		this._buildUI();
+	}
+
+	destroy() {
+		// Call destroy method on each child node
+		for (let i = 0; i < this._children.length; ++i) {
+			this._children[i].destroy();
+		}
+		// Remove click listener
+		this._dom.label.removeEventListener('click', this._onNodeClick, false);
+		// On node toggle is only listened if node is expandable/collapsable
+		if (!this._isLeaf) {
+			this._dom.expander.removeEventListener('click', this._onNodeToggle, false);
+		}
+    // Delete object attributes
+    Object.keys(this).forEach(key => {
+      delete this[key];
+    });
+	}
+
+	_buildUI() {
+		// Create node DOM elements
+		this._dom.container = document.createElement('DIV');
+		this._dom.label = document.createElement('P');
+		// Update node DOM internal attributes
+		this._dom.container.classList.add('tree-list-node');
+		this._dom.container.dataset.id = this._id;
+		this._dom.label.innerHTML = this._name;
+		// React to event and append to DOM
+		this._dom.label.addEventListener('click', this._onNodeClick, false);
+		this._dom.container.appendChild(this._dom.label);
+	}
+
+	_onNodeClick() {
+		// Only fire callback if one has been provided
+		if (typeof this._clicked === 'function') {
+			this._clicked({
+				id: this._id,
+				name: this._name,
+				depth: this._depth,
+				isLeaf: this._isLeaf,
+				isExpanded: this._isExpanded,
+        data: this._data
+			});
+		}
+	}
+
+	_onNodeToggle() {
+		// Only toggle if node has children
+		if (this._children.length > 0) {
+			if (this._isExpanded) { // Collapse node
+				this.collapse(false);
+			} else { // Expand node
+				this.expand(false);
+			}
+		}
+	}
+
+	setExpander() {
+		if (this._children.length === 0) { // No children, no expander
+			this._isLeaf = true;
+		} else { // Create expander for node
+			// Icon DOM elements
+			this._dom.expander = document.createElement('DIV');
+			this._dom.icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			this._dom.iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			// Update icon elements attributes
+			this._dom.expander.classList.add('vector');
+			this._dom.iconPath.setAttribute('d', this._svgPath.expand);
+    	this._dom.iconPath.setAttribute('fill', '#000000');
+    	// react to toggle event and append icon elements to the node container
+			this._dom.expander.addEventListener('click', this._onNodeToggle, false);
+  		this._dom.icon.appendChild(this._dom.iconPath);
+  		this._dom.expander.appendChild(this._dom.icon);
+			this._dom.container.insertBefore(this._dom.expander, this._dom.container.firstChild); // Insert before to put it first
+		}
+	}
+
+	expand(recursive = false) {
+		if (this._children.length > 0) {
+			this._dom.iconPath.setAttribute('d', this._svgPath.collapse);
+			// Append children into node container
+			for (let i = 0; i < this._children.length; ++i) {
+				// Call expand on children and pass recursive flag
+				if (recursive) {
+					this._children[i].expand(recursive);
+				}
+				// Append child from DOM container
+				this._dom.container.appendChild(this._children[i].container);
+			}
+			// Update expand flag
+			this._isExpanded = true;
+		}
+	}
+
+	collapse(recursive = false) {
+		if (this._children.length > 0) {
+			this._dom.iconPath.setAttribute('d', this._svgPath.expand);
+			// Remove children from node container
+			for (let i = 0; i < this._children.length; ++i) {
+				// Call collapse on children and pass recursive flag
+				if (recursive) {
+					this._children[i].collapse(recursive);
+				}
+				// Remove child from DOM container
+				this._dom.container.removeChild(this._children[i].container);
+			}
+			// Update expand flag
+			this._isExpanded = false;
+		}
+	}
+
+	expandAll() {
+		this.expand(true);
+	}
+
+	collapseAll() {
+		this.collapse(true);
+	}
+
+	get children() { return this._children; }
+	get container() { return this._dom.container; }
+};
+class TreeList {
+  constructor(options = {}) {
+    // Prevent wrong type for arguments, fallback according to attribute utility
+    if (typeof options.renderTo !== 'object' || (options.renderTo && !options.renderTo.appendChild)) {
+      options.renderTo = document.body;
+    }
+    if (typeof options.model !== 'object') {
+      options.model = [];
+    }
+    if (typeof options.nodeClicked !== 'function') {
+      options.nodeClicked = undefined;
+    }
+   	this._nodes = [];
+   	this._container = options.renderTo;
+    this._nodeClicked = options.nodeClicked;
+    // Build model (ie build hierarchical nodes) and build ui DOM elements
+   	this._buildModel(options.model);
+   	this._buildUI();
+  }
+
+  destroy() {
+    // Destroy model children, they will recursively destroy any existing nodes and listeners
+    for (let i = 0; i < this._nodes.length; ++i) {
+      this._nodes[i].destroy();
+    }
+    // Delete object attributes
+    Object.keys(this).forEach(key => {
+      delete this[key];
+    });
+  }
+
+	_buildModel(model) {
+		for (let i = 0; i < model.length; ++i) {
+			this._nodes.push(this._buildNode(model[i], 0));
+		}
+	}
+
+  _buildNode(nodeModel, depth) {
+    // No need to pass children since we need full model generation before assigning descendants
+    const node = new TreeListNode({
+      id: nodeModel.id,
+      name: nodeModel.name,
+      depth: depth,
+      clicked: this._nodeClicked,
+      data: nodeModel
+    });
+    // Construct child node if any
+    if (nodeModel.children && nodeModel.children.length > 0) {
+      for (let i = 0; i < nodeModel.children.length; ++i) {
+        node.children.push(this._buildNode(nodeModel.children[i], depth + 1));
+      }
+    }
+    // Set expander only when children have been recursively constructed
+    node.setExpander();
+    return node;
+  }
+
+	_buildUI() {
+		this._container.classList.add('tree-list');
+
+		for (let i = 0; i < this._nodes.length; ++i) {
+			this._container.appendChild(this._nodes[i].container);
+		}
+	}
+
+  expandAll() {
+    for (let i = 0; i < this._nodes.length; ++i) {
+      this._nodes[i].expand(true);
+    }
+  }
+
+  collapseAll() {
+    for (let i = 0; i < this._nodes.length; ++i) {
+      this._nodes[i].collapse(true);
+    }
+  }
+};
+/* DnD class */
+class DnD {
+  constructor(options) {
+    try {
+      this._container = document.querySelector(options.target); // Get given target from the DOM
+      this._onDropFileCB = options.onDropFile; // Assign the onDropFile callback to an internal
+      this._events(); // Attach all drag events
+    } catch(error) { // Mostly handle the case in which the target selector given as an argument is wrong
+      console.error(`Unable to build the DnD class.\n${error}`);
+    }
+  }
+
+  static formatAsJSON(raw) {
+    return JSON.parse(raw);
+  }
+
+  _events() {
+    this._container.addEventListener('dragenter', this._dragEnter.bind(this), false);
+    this._container.addEventListener('dragover', this._dragOver.bind(this), false);
+    this._container.addEventListener('dragleave', this._dragLeave.bind(this), false);
+    this._container.addEventListener('drop', this._drop.bind(this), false);
+  }
+
+  _eventBehavior(event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  _dragEnter(event) {
+    this._eventBehavior(event);
+    this._container.style.border = 'dashed 3px rgb(255, 100, 100)';
+  }
+
+  _dragOver(event) {
+    this._eventBehavior(event);
+    event.dataTransfer.dropEffect = 'copy';
+  }
+
+  _dragLeave(event) {
+    this._eventBehavior(event);
+    this._container.style.border = this._borderStyle;
+  }
+
+  _drop(event) {
+    this._eventBehavior(event);
+    this._container.style.border = this._borderStyle;
+
+    const files = event.dataTransfer.files;
+    for (let i = 0, file; file = files[i]; ++i) {
+      const reader = new FileReader();
+      reader.onload = (theFile => {
+        return raw => {
+          this._onDropFileCB(files[i], raw);
+        };
+      })(file);
+      reader.readAsText(file);
+    }
+  }
+}
+/* App handling */
+const DnDController = new DnD({
+  target: '.dnd-container',
+  onDropFile: (fileInfo, data) => {
+    if (fileInfo.type === 'application/json') {
+      loadJSON(fileInfo, DnD.formatAsJSON(data.target.result));
+    } else {
+      console.error('failure', 'Dropped file is not a JSON');
+    }
+  }
+});
+const loadJSON = (fileInfo, data) => {
+  document.querySelector('.library-new').style.display = 'none';
+  document.querySelector('.library-view').style.display = 'flex';
+  const myTreeList = new TreeList({
+    renderTo: document.querySelector('.tree-list-container'),
+    model: data[Object.keys(data)[0]].children,
+    nodeClicked: node => {
+      switchView(node.data);
+    },
+  });
+};
+const switchView = data => {
+  document.querySelector('.browser').innerHTML = '';
+  requestAnimationFrame(() => {
+    for (let i = 0; i < data.children.length; ++i) {
+      if (data.children[i].type === 'directory') {
+        const folder = document.createElement('DIV');
+        const icon = document.querySelector('#folder-icon').cloneNode(true);
+        const label = document.createElement('P');
+        console.log(data.children[i]);
+        label.innerHTML = data.children[i].name;
+        icon.style.display = 'block';
+        folder.appendChild(icon);
+        folder.appendChild(label);
+        document.querySelector('.browser').appendChild(folder);
+        folder.addEventListener('click', () => {
+          switchView(data.children[i]);
+        }, false);
+      } else if (data.children[i].type === 'file') {
+        const file = document.createElement('DIV');
+        const img = document.createElement('IMG');
+        img.loading = 'lazy';
+        file.appendChild(img);
+        document.querySelector('.browser').appendChild(file);
+        requestAnimationFrame(() => {
+          img.src = `file://${data.children[i].path}`;
+        });
+      }
+    }
+  });
+};
+</script>
+</html>
