@@ -1,11 +1,35 @@
 <!DOCTYPE html>
+<!--  MyPictures - A local viewer for your photography library  -->
+<!--                                                            -->
+<!--  First run the build.py file with the folder you want to   -->
+<!--  use. Add the -t (--thumbs) flag to generate thumbnails    -->
+<!--  to make the whole experience faster. It will create a     -->
+<!--  _thumbnails/ foldr in the provided folder, please leave   -->
+<!--  it there while using the HTML viewer. You can now open    -->
+<!--  HTML file and drop the JSON the script created. You can   -->
+<!--  now browse your local pictures! Have fun :)               -->
+<!--                                                            -->
+<!--  The goal of this file is to keep all style and script     -->
+<!--  inside the HTML so only one file hold the viewer.         -->
+<!--                                                            -->
+<!--  Not generating thumbs with build.py script can cause the  -->
+<!--  browser to either freeze or crash on folders that have    -->
+<!--  a lot of pictures in it.                                  -->
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <title>MyPictures</title>
   <style>
-    html, body {
+    :root {
+      --grid-size: 168px;
+    }
+
+    * {
       box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: sans-serif;
       font-size: 62.5%;
       height: 100%;
       margin: 0;
@@ -58,21 +82,52 @@
     .tree-list-container {
       height: 100%;
       overflow: auto;
-      width: 290px;
+      width: 280px;
     }
 
     .scene {
       border-left: solid 1px grey;
       height: 100%;
       overflow: auto;
-      width: calc(100% - 290px);
+      width: calc(100% - 280px);
+    }
+
+    .controls {
+      align-items: center;
+      border-bottom: solid 1px grey;
+      display: flex;
+      height: 3rem;
+      justify-content: space-between;
+    }
+
+    .controls h3 {
+      margin: 0;
+    }
+
+    .slider-wrapper {
+      align-items: center;
+      height: 3rem;
+      display: flex;
+      justify-content: center;
+      width: max-content;
+    }
+
+    .slider-wrapper svg {
+      cursor: pointer;
+      height: 2rem;
+      padding: 0 5px;
+      width: calc(2rem + 10px);
     }
 
     .browser {
+      align-items: stretch;
       display: grid;
-      grid-template-columns: repeat(6, auto);
-      grid-gap: 15px;
-      padding: 15px;
+      gap: 1rem;
+      height: calc(100% - 2rem);
+      justify-items: stretch;
+      grid-template-columns: repeat(auto-fit, var(--grid-size));
+      grid-template-rows: repeat(auto-fit, calc(var(--grid-size) + 1.2rem));
+      margin: 15px;
     }
 
     .browser div {
@@ -80,14 +135,78 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      height: 140px;
-      justify-content: center;
-      max-width: 200px;
+      justify-content: space-between;
+      max-height: calc(var(--grid-size) + 1.2rem);
+      max-width: var(--grid-size);
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .browser div p {
+      font-size: 1.2rem;
     }
 
     .browser div svg {
-      height: 50px;
-      width: 50px;
+      max-width: var(--grid-size);
+      max-height: var(--grid-size);
+    }
+
+    .browser div img {
+      max-width: var(--grid-size);
+      max-height: var(--grid-size);
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .slideshow {
+      background-color: rgba(0, 0, 0, 0.95);
+      display: none;
+      height: 100vh;
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: 100vw;
+    }
+
+    .slideshow-close {
+      cursor: pointer;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      color: white;
+    }
+
+    .slideshow-viewer {
+      align-items: center;
+      display: flex;
+      height: calc(100% - 10rem);
+      justify-content: center;
+      overflow: hidden;
+      padding: 15px;
+      width: 100%;
+    }
+
+    .slideshow-viewer img {
+      max-height: 100%;
+    }
+
+    .slideshow-controls {
+      background-color: black;
+      border-top: solid 1px grey;
+      display: flex;
+      height: 10rem;
+      overflow: auto;
+      width: 100%;
+    }
+
+    .slideshow-controls img {
+      cursor: pointer;
+      height: 100%;
+      padding: 5px;
+    }
+
+    .slideshow-controls img.selected {
+      background-color: red;
     }
     /* TreeList css */
     .tree-list{box-sizing:border-box;font-family:Helvetica, sans-serif;font-size:14px;line-height:19.6px;margin:0;padding:5px}.tree-list .tree-list-node{box-sizing:border-box;clear:both;cursor:pointer;display:inline-block;float:left;position:relative}.tree-list .tree-list-node .vector{height:15px;left:2px;margin:0;position:absolute;top:2px;width:15px}.tree-list .tree-list-node .vector svg{height:15px;transform:scale(0.8);width:15px}.tree-list .tree-list-node p{background:rgba(0,0,0,0.1);border-radius:2px;clear:both;font-size:.85em;float:left;line-height:20px;margin:0;margin-bottom:3px;margin-left:20px;max-width:100%;padding:0 5px;white-space:nowrap}.tree-list .tree-list-node p:hover{color:red}.tree-list .tree-list-node .tree-list-node.tree-list-node{margin-left:15px;width:auto}
@@ -103,12 +222,31 @@
 
     </div>
     <div class="scene">
-      <div class="browser">
-
+      <div class="controls">
+        <h3 class="view-title">Current view</h3>
+        <div class="slider-wrapper">
+          <svg id="grid-size-less" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        		<path d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+        		<path d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+          </svg>
+          <div class="slide-zoom">
+            <input type="range" min="0" max="6" value="3" class="slider" id="myRange">
+          </div>
+          <svg id="grid-size-more" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          	<path d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+          	<path d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+          </svg>
+        </div>
       </div>
+      <div class="browser"></div>
     </div>
   </div>
-  <!-- Icons from flaticon ! -->
+  <div class="slideshow">
+    <div class="slideshow-close">✖</div>
+    <div class="slideshow-viewer"></div>
+    <div class="slideshow-controls"></div>
+  </div>
+  <!-- Icons from flaticon ! Display none to only store them (and clone them in script when needed) -->
   <svg id="folder-icon" style="display:none" enable-background="new 0 0 468.293 468.293" version="1.1" viewBox="0 0 468.29 468.29" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <path d="m29.525 50.447h112c7.335 0 14.11 3.918 17.77 10.274l18.433 25.181c3.66 6.356 10.436 10.274 17.77 10.274h272.8v287.5c0 15.099-12.241 27.34-27.34 27.34h-413.61c-15.099 0-27.34-12.241-27.34-27.34v-255.6c0-21.133 3.265-42.14 9.68-62.276 2.35-9.037 10.508-15.345 19.845-15.345z" fill="#F6C358"/>
     <rect x="42.615" y="91.473" width="359.96" height="152.06" fill="#EBF0F3"/>
@@ -271,6 +409,26 @@ class TreeListNode {
 		}
 	}
 
+  expandNode(id) {
+    for (let i = 0; i < this._children.length; ++i) {
+      if (this._children[i]._id === id) {
+        this._children[i].expand();
+      } else {
+        this._children[i].expandNode(id);
+      }
+    }
+  }
+
+  collapseNode(id) {
+    for (let i = 0; i < this._children.length; ++i) {
+      if (this._children[i]._id === id) {
+        this._children[i].collapse();
+      } else {
+        this._children[i].collapseNode(id);
+      }
+    }
+  }
+
 	expandAll() {
 		this.expand(true);
 	}
@@ -347,6 +505,27 @@ class TreeList {
 		}
 	}
 
+  expandNode(id) {
+    for (let i = 0; i < this._nodes.length; ++i) {
+      if (this._nodes[i]._id === id) {
+        this._nodes[i].expand();
+      } else {
+        this._nodes[i].expandNode(id);
+      }
+    }
+  }
+
+
+  collapseNode(id) {
+    for (let i = 0; i < this._nodes.length; ++i) {
+      if (this._nodes[i]._id === id) {
+        this._nodes[i].collapse();
+      } else {
+        this._nodes[i].collapseNode(id);
+      }
+    }
+  }
+
   expandAll() {
     for (let i = 0; i < this._nodes.length; ++i) {
       this._nodes[i].expand(true);
@@ -419,6 +598,8 @@ class DnD {
   }
 }
 /* App handling */
+let basePath = './';
+let myTreeList = {};
 const DnDController = new DnD({
   target: '.dnd-container',
   onDropFile: (fileInfo, data) => {
@@ -432,23 +613,26 @@ const DnDController = new DnD({
 const loadJSON = (fileInfo, data) => {
   document.querySelector('.library-new').style.display = 'none';
   document.querySelector('.library-view').style.display = 'flex';
-  const myTreeList = new TreeList({
+  basePath = data[Object.keys(data)[0]].path;
+  myTreeList = new TreeList({
     renderTo: document.querySelector('.tree-list-container'),
     model: data[Object.keys(data)[0]].children,
     nodeClicked: node => {
       switchView(node.data);
     },
   });
+  switchView(data[Object.keys(data)[0]]);
 };
 const switchView = data => {
   document.querySelector('.browser').innerHTML = '';
+  document.querySelector('.view-title').innerHTML = data.name;
   requestAnimationFrame(() => {
     for (let i = 0; i < data.children.length; ++i) {
-      if (data.children[i].type === 'directory') {
+      if (data.children[i].type === 'directory') { // Build a folder in UI
+        myTreeList.expandNode(data.id);
         const folder = document.createElement('DIV');
         const icon = document.querySelector('#folder-icon').cloneNode(true);
         const label = document.createElement('P');
-        console.log(data.children[i]);
         label.innerHTML = data.children[i].name;
         icon.style.display = 'block';
         folder.appendChild(icon);
@@ -457,18 +641,89 @@ const switchView = data => {
         folder.addEventListener('click', () => {
           switchView(data.children[i]);
         }, false);
-      } else if (data.children[i].type === 'file') {
+      } else if (data.children[i].type === 'file') { // Build a file in UI
         const file = document.createElement('DIV');
         const img = document.createElement('IMG');
-        img.loading = 'lazy';
+        const label = document.createElement('P');
+        label.innerHTML = data.children[i].name;
+        img.loading = 'lazy'; // Specify lazy loading for browser to load album faster
         file.appendChild(img);
+        file.appendChild(label);
         document.querySelector('.browser').appendChild(file);
-        requestAnimationFrame(() => {
-          img.src = `file://${data.children[i].path}`;
-        });
+        // Setting image source (either thumbnail or real size)
+        loadImage(img, `file://${basePath}/_thumbnails/${data.children[i].id}.jpg`, `file://${data.children[i].path}`);
+        file.addEventListener('click', () => {
+          slideShow(data, data.children[i]);
+        }, false);
       }
     }
   });
 };
+const loadImage = (img, thumb, full) => {
+  requestAnimationFrame(() => {
+    fetch(thumb, { method: 'HEAD' }).then(res => {
+      if (res.ok) { // Load Thumbnail
+        img.src = thumb;
+      } else { // Fallback on full sized image
+        img.src = full;
+      }
+    }).catch(err => {
+       img.src = full;
+    });
+  });
+};
+let zoom = false;
+let selected = null;
+const slideshowThumbs = [];
+const slideShow = (data, selected) => {
+  document.querySelector('.slideshow').style.display = 'block';
+  document.querySelector('.slideshow-viewer').innerHTML = '';
+  document.querySelector('.slideshow-controls').innerHTML = '';
+  const selectedImg = document.createElement('IMG');
+  document.querySelector('.slideshow-viewer').appendChild(selectedImg);
+  loadImage(selectedImg, `file://${selected.path}`, `file://${selected.path}`);
+  for (let i = 0; i < data.children.length; ++i) {
+    if (data.children[i].type === 'file') {
+      const img = document.createElement('IMG');
+      img.loading = 'lazy'; // Specify lazy loading for browser to load album faster
+      img.dataset.id = data.children[i].id;
+
+      if (data.children[i].id === selected.id) {
+        img.classList.add('selected');
+        selected = img;
+      }
+
+      document.querySelector('.slideshow-controls').appendChild(img);
+      slideshowThumbs.push(img);
+      // Setting image source (either thumbnail or real size)
+      loadImage(img, `file://${basePath}/_thumbnails/${data.children[i].id}.jpg`, `file://${data.children[i].path}`);
+      img.addEventListener('click', () => {
+        document.querySelector('.slideshow-viewer').innerHTML = '';
+        const newImg = document.createElement('IMG');
+        for (let j = 0; j < slideshowThumbs.length; ++j) {
+          if (parseInt(slideshowThumbs[j].dataset.id) === data.children[i].id) {
+            slideshowThumbs[j].classList.add('selected');
+            selected.classList.remove('selected');
+            selected = slideshowThumbs[j];
+            break;
+          }
+        }
+        document.querySelector('.slideshow-viewer').appendChild(newImg);
+        loadImage(newImg, `file://${data.children[i].path}`, `file://${data.children[i].path}`);
+      }, false);
+    }
+  }
+  document.querySelector('.slideshow-close').addEventListener('click', () => {
+    document.querySelector('.slideshow').style.display = 'none';
+    document.querySelector('.slideshow-viewer').innerHTML = '';
+    document.querySelector('.slideshow-controls').innerHTML = '';
+    return;
+  });
+};
+const allowedWidth = [123, 135, 150, 168, 190, 218, 256];
+const updateZoom = event => {
+  document.documentElement.style.setProperty('--grid-size', `${allowedWidth[parseInt(event.target.value)]}px`);
+};
+document.querySelector('.slide-zoom').addEventListener('input', updateZoom, false);
 </script>
 </html>
