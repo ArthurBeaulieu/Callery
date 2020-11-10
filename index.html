@@ -43,6 +43,16 @@
       justify-content: center;
     }
 
+    @keyframes rotatePlane {
+      0% {
+        transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+      } 50% {
+        transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+      } 100% {
+        transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+      }
+    }
+
     .library-new,
     .library-view {
       align-items: center;
@@ -102,6 +112,21 @@
 
     .controls h3 {
       margin: 0;
+      padding-left: 15px;
+    }
+
+    .controls h3 span {
+      cursor: pointer;
+    }
+
+    .controls h3 span::after {
+      content: '>';
+      padding: 0 7.5px;
+    }
+
+    .controls h3 span:last-child::after {
+      content: '';
+      padding: 0;
     }
 
     .slider-wrapper {
@@ -119,15 +144,21 @@
       width: calc(2rem + 10px);
     }
 
+    .slide-zoom {
+      display: flex;
+      height: 3rem;
+    }
+
     .browser {
       align-items: stretch;
       display: grid;
       gap: 1rem;
-      height: calc(100% - 2rem);
+      height: calc(100% - 3rem - 2rem);
       justify-items: stretch;
       grid-template-columns: repeat(auto-fit, var(--grid-size));
       grid-template-rows: repeat(auto-fit, calc(var(--grid-size) + 1.2rem));
-      margin: 15px;
+      padding: 15px;
+      overflow: auto;
     }
 
     .browser div {
@@ -151,11 +182,27 @@
       max-height: var(--grid-size);
     }
 
-    .browser div img {
+    .browser div img,
+    .browser div video {
       max-width: var(--grid-size);
       max-height: var(--grid-size);
       object-fit: cover;
       object-position: center;
+    }
+
+    .status-bar {
+      align-items: center;
+      border-top: solid 1px grey;
+      display: flex;
+      height: 2rem;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .status-bar p {
+      font-size: 1.2rem;
+      margin: 0;
+      padding: 0 5px;
     }
 
     .slideshow {
@@ -186,8 +233,22 @@
       width: 100%;
     }
 
+    .slideshow-viewer::before {
+      content: '';
+      background-color: rgb(55, 195, 64);
+      border-radius: 5px;
+      height: 35px;
+      left: calc(50% - (35 / 2)));
+      position: absolute;
+      top: 50%;
+      width: 35px;
+      z-index: 100;
+      animation: rotatePlane 1.2s infinite ease-in-out;
+    }
+
     .slideshow-viewer img {
       max-height: 100%;
+      z-index: 101;
     }
 
     .slideshow-controls {
@@ -196,6 +257,7 @@
       display: flex;
       height: 10rem;
       overflow: auto;
+      scroll-behavior: smooth;
       width: 100%;
     }
 
@@ -208,6 +270,25 @@
     .slideshow-controls img.selected {
       background-color: red;
     }
+
+    .slideshow-previous,
+    .slideshow-next {
+      cursor: pointer;
+      height: 2rem;
+      position: absolute;
+      top: calc((100% - 10rem) / 2);
+      width: 2rem;
+    }
+    .slideshow-previous svg,
+    .slideshow-next svg {
+      fill: white;
+    }
+    .slideshow-previous {
+      left: 0;
+    }
+    .slideshow-next {
+      right: 0;
+    }
     /* TreeList css */
     .tree-list{box-sizing:border-box;font-family:Helvetica, sans-serif;font-size:14px;line-height:19.6px;margin:0;padding:5px}.tree-list .tree-list-node{box-sizing:border-box;clear:both;cursor:pointer;display:inline-block;float:left;position:relative}.tree-list .tree-list-node .vector{height:15px;left:2px;margin:0;position:absolute;top:2px;width:15px}.tree-list .tree-list-node .vector svg{height:15px;transform:scale(0.8);width:15px}.tree-list .tree-list-node p{background:rgba(0,0,0,0.1);border-radius:2px;clear:both;font-size:.85em;float:left;line-height:20px;margin:0;margin-bottom:3px;margin-left:20px;max-width:100%;padding:0 5px;white-space:nowrap}.tree-list .tree-list-node p:hover{color:red}.tree-list .tree-list-node .tree-list-node.tree-list-node{margin-left:15px;width:auto}
   </style>
@@ -218,32 +299,44 @@
     <div class="dnd-container"></div>
   </div>
   <div class="library-view">
-    <div class="tree-list-container">
-
-    </div>
+    <div class="tree-list-container"></div>
     <div class="scene">
       <div class="controls">
-        <h3 class="view-title">Current view</h3>
+        <h3 class="view-title"></h3>
         <div class="slider-wrapper">
-          <svg id="grid-size-less" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        		<path d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
-        		<path d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+          <svg id="grid-size-less" data-type="less" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        		<path data-type="less" d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+        		<path data-type="less" d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
           </svg>
           <div class="slide-zoom">
             <input type="range" min="0" max="6" value="3" class="slider" id="myRange">
           </div>
-          <svg id="grid-size-more" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-          	<path d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
-          	<path d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+          <svg id="grid-size-more" data-type="more" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          	<path data-type="more" d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+          	<path data-type="more" d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
           </svg>
         </div>
       </div>
       <div class="browser"></div>
+      <div class="status-bar">
+        <p class="folder-status-info">Testing</p>
+        <p class="image-status-info"></p>
+      </div>
     </div>
   </div>
   <div class="slideshow">
     <div class="slideshow-close">✖</div>
+    <div class="slideshow-previous">
+      <svg enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    		<path d="m379.64 477.87-207.3-207.73c-7.798-7.798-7.798-20.486 0.015-28.299l207.28-207.72c7.803-7.819 7.789-20.482-0.029-28.284-7.819-7.803-20.482-7.79-28.284 0.029l-207.27 207.7c-23.394 23.394-23.394 61.459-0.015 84.838l207.28 207.72c3.907 3.915 9.031 5.873 14.157 5.873 5.111 0 10.224-1.948 14.128-5.844 7.818-7.802 7.831-20.465 0.029-28.284z"/>
+      </svg>
+    </div>
     <div class="slideshow-viewer"></div>
+    <div class="slideshow-next">
+      <svg enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    		<path d="m132.34 477.87 207.3-207.73c7.798-7.798 7.798-20.486-0.015-28.299l-207.28-207.72c-7.803-7.819-7.789-20.482 0.029-28.284 7.819-7.803 20.482-7.79 28.284 0.029l207.27 207.7c23.394 23.394 23.394 61.459 0.015 84.838l-207.28 207.72c-3.907 3.915-9.031 5.873-14.157 5.873-5.111 0-10.224-1.948-14.128-5.844-7.818-7.802-7.831-20.465-0.029-28.284z"/>
+      </svg>
+    </div>
     <div class="slideshow-controls"></div>
   </div>
   <!-- Icons from flaticon ! Display none to only store them (and clone them in script when needed) -->
@@ -597,8 +690,290 @@ class DnD {
     }
   }
 }
+/* Keyboard shortcut class */
+class Shortcut {
+  constructor(options = {}) {
+    // If an instance of Shortcut already exists, we just return it
+    if (!!Shortcut.instance) {
+      return Shortcut.instance;
+    }
+    // Set object instance
+    Shortcut.instance = this;
+    // Prevent wrong type for arguments, fallback according to attribute utility
+    if (typeof options.keyEvent !== 'string' || (['keydown', 'keyup', 'keypress'].indexOf(options.keyEvent) === -1)) {
+      options.keyEvent = 'keydown';
+    }
+    if (typeof options.autoRepeat !== 'boolean') {
+      options.autoRepeat = true;
+    }
+    this._keyEvent = options.keyEvent;
+    this._autoRepeat = options.autoRepeat;
+    this._singleKey = [];
+    this._multiKey = [];
+    this.version = '1.0.0';
+    // Save singleton scope for testShortcuts method to be able to properly remove event on demand
+    this._testShortcuts = this._testShortcuts.bind(this);
+    // Retun singleton to the caller
+    return this;
+  }
+
+  destroy() {
+    // Remove all existing eventListener
+    this._removeEvents();
+    // Delete object attributes
+    Object.keys(this).forEach(key => {
+      delete this[key];
+    });
+    // Clear singleton instance
+    Shortcut.instance = null;
+  }
+
+  _addEvents() {
+    // Listen to keyboard's event
+    document.addEventListener(this._keyEvent, this._testShortcuts);
+  }
+
+  _removeEvents() {
+    // Revoke listener on keyboard's event
+    document.removeEventListener(this._keyEvent, this._testShortcuts);
+  }
+
+  _testShortcuts(event) {
+    // Avoid auto repeat event if singleton is configured this way
+    if (this._autoRepeat === false && event.repeat === true) {
+      event.preventDefault();
+      return;
+    }
+
+    // Analyze event to check proper shortcut array
+    if (event.ctrlKey || event.altKey || event.shiftKey) { // Multi key shortcut
+      this._multiKeyEvent(event);
+    } else { // Single key shortcut
+      this._singleKeyEvent(event);
+    }
+  }
+
+  _singleKeyEvent(event) {
+    // Iterate over registered single key shortcut to fire it if one matches
+    for (let i = 0; i < this._singleKey.length; ++i) {
+      // Check that event is active and flatten key string to compare
+      if (!this._singleKey[i].pause && event.key.toLowerCase() === this._singleKey[i].key) {
+        event.preventDefault();
+        this._singleKey[i].fire(this);
+      }
+    }
+  }
+
+  _multiKeyEvent(event) {
+    for (let i = 0; i < this._multiKey.length; ++i) {
+      // Handy shortcut variable to work with
+      const sh = this._multiKey[i];
+      // Check that event is active and flatten key string to compare
+      if (!sh.pause && event.key.toLowerCase() === sh.key) {
+        switch (sh.modifierCount) {
+          case 1: // 2 key strokes
+            if ((sh.modifiers.ctrlKey && event.ctrlKey)
+            || (sh.modifiers.altKey && event.altKey)
+            || (sh.modifiers.shiftKey && event.shiftKey)) {
+              event.preventDefault();
+              sh.fire();
+            }
+            break;
+          case 2: // 3 key strokes
+            if ((sh.modifiers.ctrlKey && event.ctrlKey && sh.modifiers.altKey && event.altKey)
+            || (sh.modifiers.ctrlKey && event.ctrlKey && sh.modifiers.shiftKey && event.shiftKey)
+            || (sh.modifiers.altKey && event.altKey && sh.modifiers.shiftKey && event.shiftKey)) {
+              event.preventDefault();
+              sh.fire();
+            }
+            break;
+          case 3: // 4 key strokes
+            if ((sh.modifiers.ctrlKey && event.ctrlKey
+            && sh.modifiers.altKey && event.altKey
+            && sh.modifiers.shiftKey && event.shiftKey)) {
+              event.preventDefault();
+              sh.fire();
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  _getModifiersCount(keyString) {
+    // Build local modifiers count with regex
+    const modifiers = {
+      ctrlKey: /ctrl/i.test(keyString),
+      altKey: /alt/i.test(keyString),
+      shiftKey: /shift/i.test(keyString)
+    };
+    // Count modifiers that are set to true and update count with it
+    let count = 0;
+    Object.values(modifiers).reduce((a, item) => count = a + item, 0);
+    // Return count value
+    return count;
+  }
+
+  _setAllPauseFlag(value) {
+    // Iterate over both arays to update pause flag on each registered shortcut
+    for (let i = 0; i < this._singleKey.length; ++i) {
+      this._setOnePauseFlag(this._singleKey[i].keyString, value);
+    }
+
+    for (let i = 0; i < this._multiKey.length; ++i) {
+      this._setOnePauseFlag(this._multiKey[i].keyString, value);
+    }
+  }
+
+  _setOnePauseFlag(keyString, value) {
+    if (this._getModifiersCount(keyString) === 0) {
+      for (let i = 0; i < this._singleKey.length; ++i) {
+        if (this._singleKey[i].keyString === keyString) {
+          this._singleKey[i].pause = value;
+        }
+      }
+    } else {
+      for (let i = 0; i < this._multiKey.length; ++i) {
+        if (this._multiKey[i].keyString === keyString) {
+          this._multiKey[i].pause = value;
+        }
+      }
+    }
+  }
+
+  _shortcutAlreadyExist(keyString) {
+    // Parse single or multi shortcuts depending on modifiers count to find maching one
+    if (this._getModifiersCount(keyString) === 0) {
+      for (let i = 0; i < this._singleKey.length; ++i) {
+        if (this._singleKey[i].keyString === keyString) {
+          return true;
+        }
+      }
+    } else {
+      for (let i = 0; i < this._multiKey.length; ++i) {
+        if (this._multiKey[i].keyString === keyString) {
+          return true;
+        }
+      }
+    }
+    // False by default to allow the shortcut creation
+    return false;
+  }
+
+  register(keyString, fire) {
+    if (typeof keyString !== 'string' || typeof fire !== 'function') {
+      return;
+    }
+
+    if (!this._shortcutAlreadyExist(keyString)) {
+      // First shortcut to be registered ; listen to keyboard key down event
+      if (this._singleKey.length === 0 && this._multiKey.length === 0) {
+        this._addEvents();
+      }
+      // New shortcut internals
+      const shortcut = {
+        keyString: keyString,
+        modifiers: { // Regex insensitive to string case to search for modifiers
+          ctrlKey: /ctrl/i.test(keyString),
+          altKey: /alt/i.test(keyString),
+          shiftKey: /shift/i.test(keyString)
+        },
+        modifierCount: this._getModifiersCount(keyString),
+        key: keyString.toLowerCase().replace('ctrl', '').replace('alt', '').replace('maj', '').replace(' ', ''),
+        paused: false,
+        fire: fire
+      };
+      // Save shortcut to its appropriated array
+      if (this._getModifiersCount(keyString) === 0) {
+        this._singleKey.push(shortcut);
+      } else {
+        this._multiKey.push(shortcut);
+      }
+    }
+  }
+
+  remove(keyString) {
+    if (typeof keyString !== 'string') {
+      return;
+    }
+    // Reverse parsing to ensure proper slicing of shortcut arrays
+    if (this._getModifiersCount(keyString) === 0) {
+      for (let i = this._singleKey.length - 1; i >= 0; i--) {
+        if (this._singleKey[i].keyString === keyString) {
+          this._singleKey.splice(i, 1);
+        }
+      }
+    } else {
+      for (let i = this._multiKey.length - 1; i >= 0; i--) {
+        if (this._multiKey[i].keyString === keyString) {
+          this._multiKey.splice(i, 1);
+        }
+      }
+    }
+    // In case there are no remaining shortcut, we remove listener on keyboard's event
+    if (this._singleKey.length === 0 && this._multiKey.length === 0) {
+      this._removeEvents();
+    }
+  }
+
+  removeAll() {
+    // Clear all saved shortcut
+    this._singleKey = [];
+    this._multiKey = [];
+    // Remove listener on keyboard's key down
+    this._removeEvents();
+  }
+
+  pause(keyString) {
+    if (typeof keyString !== 'string') {
+      return;
+    }
+
+    this._setOnePauseFlag(keyString, true);
+  }
+
+  resume(keyString) {
+    if (typeof keyString !== 'string') {
+      return;
+    }
+
+    this._setOnePauseFlag(keyString, false);
+  }
+
+  pauseAll() {
+    this._setAllPauseFlag(true);
+  }
+
+  resumeAll() {
+    this._setAllPauseFlag(false);
+  }
+
+  updateKeyEvent(keyEvent) {
+    // Prevent wrong type or un-existing key event
+    if (typeof keyEvent !== 'string' || (['keydown', 'keyup', 'keypress'].indexOf(keyEvent) === -1)) {
+      keyEvent = 'keydown';
+    }
+    // Key event actual update
+    this._removeEvents(); // Remove previous key event value and shortcut listener
+    this._keyEvent = keyEvent; // Update private attribute
+    this._addEvents(); // Restore shortcut listening with knew key event
+  }
+
+  updateAutoRepeat(autoRepeat) {
+    // Prevent wrong type for input
+    if (typeof autoRepeat !== 'boolean') {
+      autoRepeat = true;
+    }
+    // Update private attribute
+    this._autoRepeat = autoRepeat;
+  }
+}
 /* App handling */
+const keyboard = new Shortcut();
 let basePath = './';
+let globalModel = null;
 let myTreeList = {};
 const DnDController = new DnD({
   target: '.dnd-container',
@@ -614,6 +989,7 @@ const loadJSON = (fileInfo, data) => {
   document.querySelector('.library-new').style.display = 'none';
   document.querySelector('.library-view').style.display = 'flex';
   basePath = data[Object.keys(data)[0]].path;
+  globalModel = data[Object.keys(data)[0]];
   myTreeList = new TreeList({
     renderTo: document.querySelector('.tree-list-container'),
     model: data[Object.keys(data)[0]].children,
@@ -623,9 +999,62 @@ const loadJSON = (fileInfo, data) => {
   });
   switchView(data[Object.keys(data)[0]]);
 };
+const findInModel = (name, model) => {
+  if (model.name === name) {
+    return model;
+  } else if (model.children && model.children.length !== 0) {
+      let result = null;
+      for (let i = 0; result == null && i < model.children.length; ++i) {
+         result = findInModel(name, model.children[i]);
+      }
+      return result;
+   }
+   return null;
+};
+const buildPath = (data) => {
+  document.querySelector('.view-title').innerHTML = '';
+  let path  = data.path.split('\\');
+  if (path.length === 0) {
+    path = data.path.split('/');
+  }
+  let index = 0;
+  for (let i = path.length; i > 0; --i) {
+    if (path[i] === globalModel.name) {
+      index = i;
+      break;
+    }
+  } // Iterate from found index to path array end and hadle each path
+  for (let i = index; i < path.length; ++i) {
+    const element = document.createElement('SPAN');
+    element.addEventListener('click', () => {
+      switchView(findInModel(path[i], globalModel));
+    }, false);
+    element.innerHTML = path[i];
+    document.querySelector('.view-title').appendChild(element);
+  }
+};
+const buildStatus = (data, element = {}) => {
+  document.querySelector('.folder-status-info').innerHTML = `${data.children.length} elements`;
+  document.querySelector('.image-status-info').innerHTML = ``;
+  if (element.exif) {
+    const focal = element.exif.FocalLength || '';
+    const exposure = element.exif.ExposureTime || '';
+    const fNumber = element.exif.FNumber || '';
+    const iso = element.exif.ISOSpeedRatings || '';
+    const manufacturer = element.exif.Make || '';
+    const model = element.exif.Model || '';
+    const lense = element.exif.LensModel || '';
+    document.querySelector('.image-status-info').innerHTML = `${manufacturer}${manufacturer ?' - ':''}${model}${model ?' - ':''}${lense}${lense ?' - ':''}${focal}${focal ?'mm - ':''}${exposure}${exposure ?'s - ':''}${fNumber ?'f':''}${fNumber}${fNumber?' - ':''}${iso}${iso ?' ISO':''}`;
+    return;
+  }
+};
 const switchView = data => {
   document.querySelector('.browser').innerHTML = '';
-  document.querySelector('.view-title').innerHTML = data.name;
+  buildPath(data);
+  buildStatus(data);
+  data.children.sort((a, b) => {
+    return a.type > b.type;
+  });
   requestAnimationFrame(() => {
     for (let i = 0; i < data.children.length; ++i) {
       if (data.children[i].type === 'directory') { // Build a folder in UI
@@ -641,7 +1070,7 @@ const switchView = data => {
         folder.addEventListener('click', () => {
           switchView(data.children[i]);
         }, false);
-      } else if (data.children[i].type === 'file') { // Build a file in UI
+      } else if (data.children[i].type === 'image') { // Build a file in UI
         const file = document.createElement('DIV');
         const img = document.createElement('IMG');
         const label = document.createElement('P');
@@ -655,6 +1084,24 @@ const switchView = data => {
         file.addEventListener('click', () => {
           slideShow(data, data.children[i]);
         }, false);
+
+        file.addEventListener('mouseenter', () => {
+          buildStatus(data, data.children[i]);
+        }, false);
+        file.addEventListener('mouseleave', () => {
+          buildStatus(data);
+        }, false);
+      } else if (data.children[i].type === 'video') { // Build a file in UI
+        const file = document.createElement('DIV');
+        const label = document.createElement('P');
+        const vid = document.createElement('VIDEO');
+        label.innerHTML = data.children[i].name;
+        vid.setAttribute('controls', 'here');
+        vid.src = `file://${data.children[i].path}`;
+        vid.load();
+        file.appendChild(vid);
+        file.appendChild(label);
+        document.querySelector('.browser').appendChild(file);
       }
     }
   });
@@ -672,10 +1119,8 @@ const loadImage = (img, thumb, full) => {
     });
   });
 };
-let zoom = false;
-let selected = null;
-const slideshowThumbs = [];
 const slideShow = (data, selected) => {
+  const slideshowThumbs = [];
   document.querySelector('.slideshow').style.display = 'block';
   document.querySelector('.slideshow-viewer').innerHTML = '';
   document.querySelector('.slideshow-controls').innerHTML = '';
@@ -683,16 +1128,10 @@ const slideShow = (data, selected) => {
   document.querySelector('.slideshow-viewer').appendChild(selectedImg);
   loadImage(selectedImg, `file://${selected.path}`, `file://${selected.path}`);
   for (let i = 0; i < data.children.length; ++i) {
-    if (data.children[i].type === 'file') {
+    if (data.children[i].type === 'image') {
       const img = document.createElement('IMG');
-      img.loading = 'lazy'; // Specify lazy loading for browser to load album faster
       img.dataset.id = data.children[i].id;
-
-      if (data.children[i].id === selected.id) {
-        img.classList.add('selected');
-        selected = img;
-      }
-
+      // Add selected class to
       document.querySelector('.slideshow-controls').appendChild(img);
       slideshowThumbs.push(img);
       // Setting image source (either thumbnail or real size)
@@ -702,9 +1141,10 @@ const slideShow = (data, selected) => {
         const newImg = document.createElement('IMG');
         for (let j = 0; j < slideshowThumbs.length; ++j) {
           if (parseInt(slideshowThumbs[j].dataset.id) === data.children[i].id) {
-            slideshowThumbs[j].classList.add('selected');
             selected.classList.remove('selected');
+            slideshowThumbs[j].classList.add('selected');
             selected = slideshowThumbs[j];
+            document.querySelector('.slideshow-controls').scrollLeft = selected.offsetLeft - (window.innerWidth / 2) + ((selected.width + 10) / 2); // +10px is for img paddings
             break;
           }
         }
@@ -713,17 +1153,105 @@ const slideShow = (data, selected) => {
       }, false);
     }
   }
+  // Now iterate through thumb elements to center on
+  const nextImg = () => {
+    for (let i = 0; i < slideshowThumbs.length; ++i) {
+      if (slideshowThumbs[i].dataset.id === selected.dataset.id) {
+        selected.classList.remove('selected');
+        slideshowThumbs[(i + 1) % (slideshowThumbs.length)].classList.add('selected');
+        selected = slideshowThumbs[(i + 1) % (slideshowThumbs.length)];
+        document.querySelector('.slideshow-controls').scrollLeft = selected.offsetLeft - (window.innerWidth / 2) + ((selected.width + 10) / 2); // +10px is for img paddings
+        break;
+      }
+    }
+    for (let i = 0; i < data.children.length; ++i) {
+      if (parseInt(selected.dataset.id) === data.children[i].id) {
+        document.querySelector('.slideshow-viewer').innerHTML = '';
+        const newImg = document.createElement('IMG');
+        document.querySelector('.slideshow-viewer').appendChild(newImg);
+        loadImage(newImg, `file://${data.children[i].path}`, `file://${data.children[i].path}`);
+        break;
+      }
+    }
+  };
+  const prevImg = () => {
+    for (let i = 0; i < slideshowThumbs.length; ++i) {
+      if (slideshowThumbs[i].dataset.id === selected.dataset.id) {
+        selected.classList.remove('selected');
+        slideshowThumbs[(i - 1 + slideshowThumbs.length) % (slideshowThumbs.length)].classList.add('selected');
+        selected = slideshowThumbs[(i - 1 + slideshowThumbs.length) % (slideshowThumbs.length)];
+        document.querySelector('.slideshow-controls').scrollLeft = selected.offsetLeft - (window.innerWidth / 2) + ((selected.width + 10) / 2); // +10px is for img paddings
+        break;
+      }
+    }
+    for (let i = 0; i < data.children.length; ++i) {
+      if (parseInt(selected.dataset.id) === data.children[i].id) {
+        document.querySelector('.slideshow-viewer').innerHTML = '';
+        const newImg = document.createElement('IMG');
+        document.querySelector('.slideshow-viewer').appendChild(newImg);
+        loadImage(newImg, `file://${data.children[i].path}`, `file://${data.children[i].path}`);
+        break;
+      }
+    }
+  };
+  setTimeout(() => {
+    for (let i = 0; i < slideshowThumbs.length; ++i) {
+      if (parseInt(slideshowThumbs[i].dataset.id) === selected.id) {
+        slideshowThumbs[i].classList.add('selected');
+        selected = slideshowThumbs[i];
+        document.querySelector('.slideshow-controls').scrollLeft = selected.offsetLeft - (window.innerWidth / 2) + ((selected.width + 10) / 2);
+        break;
+      }
+    }
+  }, slideshowThumbs.length);
+  document.querySelector('.slideshow-controls').addEventListener('wheel', event => {
+    if (!event.deltaY) { return; }
+    event.currentTarget.style.scrollBehavior = 'inherit';
+    event.currentTarget.scrollLeft += (event.deltaY * 30);
+    event.currentTarget.style.scrollBehavior = 'smooth';
+  }, false);
+  document.querySelector('.slideshow-previous').addEventListener('click', prevImg, false);
+  document.querySelector('.slideshow-next').addEventListener('click', nextImg, false);
   document.querySelector('.slideshow-close').addEventListener('click', () => {
     document.querySelector('.slideshow').style.display = 'none';
     document.querySelector('.slideshow-viewer').innerHTML = '';
     document.querySelector('.slideshow-controls').innerHTML = '';
+    keyboard.remove('ArrowLeft');
+    keyboard.remove('ArrowRight');
     return;
   });
+  keyboard.register('ArrowLeft', prevImg);
+  keyboard.register('ArrowRight', nextImg);
 };
 const allowedWidth = [123, 135, 150, 168, 190, 218, 256];
 const updateZoom = event => {
-  document.documentElement.style.setProperty('--grid-size', `${allowedWidth[parseInt(event.target.value)]}px`);
+  let width = 168;
+  let appliedWidth = window.getComputedStyle(document.documentElement).getPropertyValue('--grid-size');
+  appliedWidth = parseInt(appliedWidth.substring(0, appliedWidth.length - 2));
+  const index = allowedWidth.indexOf(appliedWidth);
+  if (event.target.dataset.type === 'less') {
+    if (index > 0) {
+      width = allowedWidth[index - 1]
+      document.querySelector('.slide-zoom').firstElementChild.value = index - 1;
+    } else {
+      width = allowedWidth[0];
+      document.querySelector('.slide-zoom').firstElementChild.value = parseInt(0);
+    }
+  } else if (event.target.dataset.type === 'more') {
+    if (index < allowedWidth.length - 1) {
+      width = allowedWidth[index + 1]
+      document.querySelector('.slide-zoom').firstElementChild.value = parseInt(index + 1);
+    } else {
+      width = allowedWidth[allowedWidth.length - 1];
+      document.querySelector('.slide-zoom').firstElementChild.value = parseInt(allowedWidth.length - 1);
+    }
+  } else { // Slider was moved
+    width = allowedWidth[parseInt(event.target.value)];
+  }
+  document.documentElement.style.setProperty('--grid-size', `${width}px`);
 };
 document.querySelector('.slide-zoom').addEventListener('input', updateZoom, false);
+document.querySelector('#grid-size-less').addEventListener('click', updateZoom, false);
+document.querySelector('#grid-size-more').addEventListener('click', updateZoom, false);
 </script>
 </html>
