@@ -1,4 +1,4 @@
-# MyPictures
+# Callery
 
 Local website to review your photos!
 

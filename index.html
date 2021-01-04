@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<!--  MyPictures - A local viewer for your photography library  -->
-<!--                                                            -->
-<!--  First run the build.py file with the folder you want to   -->
-<!--  use. Add the -t (--thumbs) flag to generate thumbnails    -->
-<!--  to make the whole experience faster. It will create a     -->
-<!--  _thumbnails/ foldr in the provided folder, please leave   -->
-<!--  it there while using the HTML viewer. You can now open    -->
-<!--  HTML file and drop the JSON the script created. You can   -->
-<!--  now browse your local pictures! Have fun :)               -->
-<!--                                                            -->
-<!--  The goal of this file is to keep all style and script     -->
-<!--  inside the HTML so only one file hold the viewer.         -->
-<!--                                                            -->
-<!--  Not generating thumbs with build.py script can cause the  -->
-<!--  browser to either freeze or crash on folders that have    -->
-<!--  a lot of pictures in it.                                  -->
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>MyPictures</title>
+  <title>Callery</title>
+  <!--  Callery - A local viewer for your photography library  -->
+  <!--                                                            -->
+  <!--  First run the build.py file with the folder you want to   -->
+  <!--  use. Add the -t (--thumbs) flag to generate thumbnails    -->
+  <!--  to make the whole experience faster. It will create a     -->
+  <!--  _thumbnails/ foldr in the provided folder, please leave   -->
+  <!--  it there while using the HTML viewer. You can now open    -->
+  <!--  HTML file and drop the JSON the script created. You can   -->
+  <!--  now browse your local pictures! Have fun :)               -->
+  <!--                                                            -->
+  <!--  The goal of this file is to keep all style and script     -->
+  <!--  inside the HTML so only one file hold the viewer.         -->
+  <!--                                                            -->
+  <!--  Not generating thumbs with build.py script can cause the  -->
+  <!--  browser to either freeze or crash on folders that have    -->
+  <!--  a lot of pictures in it.                                  -->
   <style>
     :root {
       --grid-size: 168px;
@@ -83,6 +83,8 @@
     }
 
     .library-view {
+      background-color: #06090F;
+      color: #C9d1D9;
       display: none;
       flex-direction: row;
       height: 100%;
@@ -90,6 +92,7 @@
     }
 
     .tree-list-container {
+      background-color: #0D1117;
       height: 100%;
       overflow: auto;
       width: 280px;
@@ -104,6 +107,7 @@
 
     .controls {
       align-items: center;
+      background-color: #0D1117;
       border-bottom: solid 1px grey;
       display: flex;
       height: 3rem;
@@ -166,15 +170,18 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       max-height: calc(var(--grid-size) + 1.2rem);
       max-width: var(--grid-size);
       object-fit: cover;
       object-position: center;
+
+      transition: all .2s ease-in-out;
     }
 
     .browser div p {
       font-size: 1.2rem;
+      margin: 1rem 0;
     }
 
     .browser div svg {
@@ -185,13 +192,20 @@
     .browser div img,
     .browser div video {
       max-width: var(--grid-size);
-      max-height: var(--grid-size);
+      max-height: calc(var(--grid-size) - 3.2rem); /* Font size and double margins */
       object-fit: cover;
       object-position: center;
     }
 
+    .browser div:active,
+    .browser div:focus,
+    .browser div:hover {
+      transform: scale(1.05);
+    }
+
     .status-bar {
       align-items: center;
+      background-color: #0D1117;
       border-top: solid 1px grey;
       display: flex;
       height: 2rem;
@@ -229,6 +243,7 @@
       height: calc(100% - 10rem);
       justify-content: center;
       overflow: hidden;
+      pointer-events: none;
       padding: 15px;
       width: 100%;
     }
@@ -295,7 +310,7 @@
 </head>
 <body>
   <div class="library-new">
-    <h1>MyPictures</h1>
+    <h1>Callery</h1>
     <div class="dnd-container"></div>
   </div>
   <div class="library-view">
@@ -305,15 +320,15 @@
         <h3 class="view-title"></h3>
         <div class="slider-wrapper">
           <svg id="grid-size-less" data-type="less" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        		<path data-type="less" d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
-        		<path data-type="less" d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+        		<path fill="#C9d1D9" data-type="less" d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+        		<path fill="#C9d1D9" data-type="less" d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
           </svg>
           <div class="slide-zoom">
             <input type="range" min="0" max="6" value="3" class="slider" id="myRange">
           </div>
           <svg id="grid-size-more" data-type="more" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-          	<path data-type="more" d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
-          	<path data-type="more" d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+          	<path fill="#C9d1D9" data-type="more" d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+          	<path fill="#C9d1D9" data-type="more" d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
           </svg>
         </div>
       </div>
@@ -459,7 +474,7 @@ class TreeListNode {
 			// Update icon elements attributes
 			this._dom.expander.classList.add('vector');
 			this._dom.iconPath.setAttribute('d', this._svgPath.expand);
-    	this._dom.iconPath.setAttribute('fill', '#000000');
+    	this._dom.iconPath.setAttribute('fill', '#C9d1D9');
     	// react to toggle event and append icon elements to the node container
 			this._dom.expander.addEventListener('click', this._onNodeToggle, false);
   		this._dom.icon.appendChild(this._dom.iconPath);
@@ -986,6 +1001,8 @@ const DnDController = new DnD({
   }
 });
 const loadJSON = (fileInfo, data) => {
+  // Update LS with dropped file
+  window.localStorage.setItem('Callery-Library', `file://${data[Object.keys(data)[0]].path}/LibraryData.json`);
   document.querySelector('.library-new').style.display = 'none';
   document.querySelector('.library-view').style.display = 'flex';
   basePath = data[Object.keys(data)[0]].path;
@@ -1034,16 +1051,26 @@ const buildPath = (data) => {
   }
 };
 const buildStatus = (data, element = {}) => {
+  function precisionRound(value, precision) {
+    const multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+  }
+
   document.querySelector('.folder-status-info').innerHTML = `${data.children.length} elements`;
   document.querySelector('.image-status-info').innerHTML = ``;
   if (element.exif) {
     const focal = element.exif.FocalLength || '';
-    const exposure = element.exif.ExposureTime || '';
+    let exposure = element.exif.ExposureTime || '';
     const fNumber = element.exif.FNumber || '';
     const iso = element.exif.ISOSpeedRatings || '';
     const manufacturer = element.exif.Make || '';
     const model = element.exif.Model || '';
     const lense = element.exif.LensModel || '';
+
+    if (exposure < 1 && exposure !== '') {
+      exposure = precisionRound(exposure, 3);
+    }
+
     document.querySelector('.image-status-info').innerHTML = `${manufacturer}${manufacturer ?' - ':''}${model}${model ?' - ':''}${lense}${lense ?' - ':''}${focal}${focal ?'mm - ':''}${exposure}${exposure ?'s - ':''}${fNumber ?'f':''}${fNumber}${fNumber?' - ':''}${iso}${iso ?' ISO':''}`;
     return;
   }
@@ -1253,5 +1280,11 @@ const updateZoom = event => {
 document.querySelector('.slide-zoom').addEventListener('input', updateZoom, false);
 document.querySelector('#grid-size-less').addEventListener('click', updateZoom, false);
 document.querySelector('#grid-size-more').addEventListener('click', updateZoom, false);
+// Load previously saved JSON
+if (window.localStorage.getItem('Callery-Library')) {
+  fetch(window.localStorage.getItem('Callery-Library'))
+    .then(response => response.json())
+    .then(jsonResponse => loadJSON(null, jsonResponse));
+}
 </script>
 </html>
