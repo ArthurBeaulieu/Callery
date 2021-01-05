@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Callery</title>
+  <link href="https://raw.githubusercontent.com/ArthurBeaulieu/ArthurBeaulieu/master/img/logo.png" rel="icon" type="image/png">
   <!--  Callery - A local viewer for your photography library  -->
   <!--                                                            -->
   <!--  First run the build.py file with the folder you want to   -->
@@ -84,18 +85,52 @@
 
     .library-view {
       background-color: #06090F;
-      color: #C9d1D9;
+      color: #C9D1D9;
       display: none;
       flex-direction: row;
       height: 100%;
       width: 100%;
     }
 
-    .tree-list-container {
+    .aside {
       background-color: #0D1117;
       height: 100%;
-      overflow: auto;
       width: 280px;
+    }
+
+    .aside-header {
+      align-items: center;
+      background-color: #161b22;
+      border-bottom: solid 1px grey;
+      display: flex;
+      height: 4rem;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .aside-header a {
+      color: inherit;
+      font-size: 2.4rem;
+      font-weight: bold;
+      margin: 0;
+      text-decoration: none;
+    }
+
+    .aside p.description {
+      align-items: center;
+      display: flex;
+      font-size: 1.1rem;
+      font-style: italic;
+      height: 2rem;
+      margin: 0;
+      padding-left: 1rem;
+      padding-top: 5px;
+    }
+
+    .tree-list-container {
+      height: calc(100% - 6rem);
+      overflow: auto;
+      width: 100%;
     }
 
     .scene {
@@ -107,44 +142,59 @@
 
     .controls {
       align-items: center;
-      background-color: #0D1117;
+      background-color: #161b22;
       border-bottom: solid 1px grey;
       display: flex;
-      height: 3rem;
+      height: 4rem;
       justify-content: space-between;
     }
 
     .controls h3 {
       margin: 0;
-      padding-left: 15px;
+      padding-left: 1.5rem;
+      font-weight: inherit;
     }
 
     .controls h3 span {
+      color: inherit;
       cursor: pointer;
+      transition: all .2s ease-in-out;
+    }
+
+    .controls h3 span:active,
+    .controls h3 span:focus,
+    .controls h3 span:hover {
+      color: rgba(72, 171, 175, 1);
     }
 
     .controls h3 span::after {
       content: '>';
       padding: 0 7.5px;
     }
-
     .controls h3 span:last-child::after {
       content: '';
       padding: 0;
     }
 
+    .controls-buttons {
+      align-items: center;
+      display: flex;
+      margin-right: 1rem;
+    }
+
     .slider-wrapper {
       align-items: center;
-      height: 3rem;
+      height: 4rem;
       display: flex;
       justify-content: center;
       width: max-content;
     }
 
+    .controls-buttons svg,
     .slider-wrapper svg {
       cursor: pointer;
-      height: 2rem;
-      padding: 0 5px;
+      height: 1.6rem;
+      padding: 0 .5rem;
       width: calc(2rem + 10px);
     }
 
@@ -155,9 +205,10 @@
 
     .browser {
       align-items: stretch;
+      background-image: linear-gradient(#161b22, rgba(72, 171, 175, .1) 85%);
       display: grid;
       gap: 1rem;
-      height: calc(100% - 3rem - 2rem);
+      height: calc(100% - 4rem - 2rem);
       justify-items: stretch;
       grid-template-columns: repeat(auto-fit, var(--grid-size));
       grid-template-rows: repeat(auto-fit, calc(var(--grid-size) + 1.2rem));
@@ -175,13 +226,26 @@
       max-width: var(--grid-size);
       object-fit: cover;
       object-position: center;
+      position: relative;
+    }
 
-      transition: all .2s ease-in-out;
+    .browser div::before {
+      content: attr(data-before);
+      color: black;
+      font-size: 1.1rem;
+      font-style: italic;
+      position: absolute;
+      right: 2rem;
+      top: 2.5rem;
     }
 
     .browser div p {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       margin: 1rem 0;
+      max-width: var(--grid-size);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .browser div svg {
@@ -193,19 +257,19 @@
     .browser div video {
       max-width: var(--grid-size);
       max-height: calc(var(--grid-size) - 3.2rem); /* Font size and double margins */
-      object-fit: cover;
-      object-position: center;
+      overflow: hidden;
+      transition: all .2s ease-in-out;
     }
 
-    .browser div:active,
-    .browser div:focus,
-    .browser div:hover {
+    .browser div img:active,
+    .browser div img:focus,
+    .browser div img:hover {
       transform: scale(1.05);
     }
 
     .status-bar {
       align-items: center;
-      background-color: #0D1117;
+      background-color: #161b22;
       border-top: solid 1px grey;
       display: flex;
       height: 2rem;
@@ -263,11 +327,12 @@
 
     .slideshow-viewer img {
       max-height: 100%;
+      max-width: 98%;
       z-index: 101;
     }
 
     .slideshow-controls {
-      background-color: black;
+      background-color: #0D1117;
       border-top: solid 1px grey;
       display: flex;
       height: 10rem;
@@ -283,7 +348,7 @@
     }
 
     .slideshow-controls img.selected {
-      background-color: red;
+      background-color: rgba(72, 171, 175, 0.75);
     }
 
     .slideshow-previous,
@@ -305,31 +370,47 @@
       right: 0;
     }
     /* TreeList css */
-    .tree-list{box-sizing:border-box;font-family:Helvetica, sans-serif;font-size:14px;line-height:19.6px;margin:0;padding:5px}.tree-list .tree-list-node{box-sizing:border-box;clear:both;cursor:pointer;display:inline-block;float:left;position:relative}.tree-list .tree-list-node .vector{height:15px;left:2px;margin:0;position:absolute;top:2px;width:15px}.tree-list .tree-list-node .vector svg{height:15px;transform:scale(0.8);width:15px}.tree-list .tree-list-node p{background:rgba(0,0,0,0.1);border-radius:2px;clear:both;font-size:.85em;float:left;line-height:20px;margin:0;margin-bottom:3px;margin-left:20px;max-width:100%;padding:0 5px;white-space:nowrap}.tree-list .tree-list-node p:hover{color:red}.tree-list .tree-list-node .tree-list-node.tree-list-node{margin-left:15px;width:auto}
+    .tree-list{box-sizing:border-box;font-family:Helvetica, sans-serif;font-size:14px;line-height:19.6px;margin:0;padding:5px}.tree-list .tree-list-node{box-sizing:border-box;clear:both;cursor:pointer;display:inline-block;float:left;position:relative}.tree-list .tree-list-node .vector{height:15px;left:2px;margin:0;position:absolute;top:2px;width:15px}.tree-list .tree-list-node .vector svg{height:15px;transform:scale(0.8);width:15px}.tree-list .tree-list-node p{background:rgba(255,255,255,0.1);border-radius:2px;clear:both;font-size:.85em;float:left;line-height:20px;margin:0;margin-bottom:3px;margin-left:20px;max-width:100%;padding:0 5px;white-space:nowrap}.tree-list .tree-list-node p:hover{color:rgba(72, 171, 175, 1)}.tree-list .tree-list-node .tree-list-node.tree-list-node{margin-left:15px;width:auto}
   </style>
 </head>
+<!-- Page HTML body -->
 <body>
   <div class="library-new">
     <h1>Callery</h1>
     <div class="dnd-container"></div>
   </div>
   <div class="library-view">
-    <div class="tree-list-container"></div>
+    <div class="aside">
+      <div class="aside-header">
+        <a href="https://github.com/ArthurBeaulieu/Callery" target="_blank">Callery</a>
+      </div>
+      <p class="description">Folder structure</p>
+      <div class="tree-list-container"></div>
+    </div>
     <div class="scene">
       <div class="controls">
         <h3 class="view-title"></h3>
-        <div class="slider-wrapper">
-          <svg id="grid-size-less" data-type="less" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        		<path fill="#C9d1D9" data-type="less" d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
-        		<path fill="#C9d1D9" data-type="less" d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
-          </svg>
-          <div class="slide-zoom">
-            <input type="range" min="0" max="6" value="3" class="slider" id="myRange">
+        <div class="controls-buttons">
+          <div class="slider-wrapper">
+            <svg id="grid-size-less" data-type="less" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          		<path fill="#C9d1D9" data-type="less" d="m506.14 477.85-144.45-144.45c65.813-80.075 61.335-198.94-13.451-273.73h-1e-3c-79.558-79.559-209.01-79.558-288.57 0-79.559 79.559-79.559 209.01 0 288.57 74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.814 7.813 20.478 7.811 28.29 0 7.811-7.812 7.811-20.478 0-28.29zm-186.19-157.9c-63.959 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.958 168.03-63.961 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+          		<path fill="#C9d1D9" data-type="less" d="m301.9 183.95h-195.89c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h195.89c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+            </svg>
+            <div class="slide-zoom">
+              <input type="range" min="0" max="6" value="3" class="slider" id="myRange">
+            </div>
+            <svg id="grid-size-more" data-type="more" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            	<path fill="#C9d1D9" data-type="more" d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
+            	<path fill="#C9d1D9" data-type="more" d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
+            </svg>
           </div>
-          <svg id="grid-size-more" data-type="more" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-          	<path fill="#C9d1D9" data-type="more" d="m506.14 477.85-144.45-144.45c65.814-80.075 61.336-198.94-13.451-273.73-79.559-79.559-209.01-79.559-288.57 0s-79.559 209.01 0 288.57c74.766 74.766 193.62 79.293 273.73 13.451l144.45 144.45c7.812 7.812 20.477 7.812 28.289 0 7.813-7.813 7.813-20.478 1e-3 -28.29zm-186.19-157.9c-63.96 63.96-168.03 63.959-231.99 0-63.96-63.96-63.96-168.03 0-231.99 63.958-63.957 168.03-63.962 231.99 0 63.96 63.96 63.96 168.03 0 231.99z"/>
-          	<path fill="#C9d1D9" data-type="more" d="m301.9 183.95h-77.94v-77.94c0-11.048-8.956-20.004-20.004-20.004s-20.004 8.956-20.004 20.004v77.94h-77.94c-11.048 0-20.004 8.956-20.004 20.004s8.956 20.004 20.004 20.004h77.94v77.94c0 11.048 8.956 20.004 20.004 20.004s20.004-8.956 20.004-20.004v-77.94h77.94c11.048 0 20.004-8.956 20.004-20.004s-8.956-20.004-20.004-20.004z"/>
-          </svg>
+          <svg id="fullscreen" width="512" height="512" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <path fill="#C9d1D9" d="m104 72h48a24 24 0 0 0 24-24 24 24 0 0 0-24-24h-104a24 24 0 0 0-24 24v104a24 24 0 0 0 48 0v-48l116 116a22.627 22.627 0 0 0 32 0 22.627 22.627 0 0 0 0-32z"/>
+            <path fill="#C9d1D9" d="m220 292a22.627 22.627 0 0 0-32 0l-116 116v-48a24 24 0 0 0-48 0v104a24 24 0 0 0 24 24h104a24 24 0 0 0 24-24 24 24 0 0 0-24-24h-48l116-116a22.627 22.627 0 0 0 0-32z"/>
+            <path fill="#C9d1D9" d="m464 24h-104a24 24 0 0 0-24 24 24 24 0 0 0 24 24h48l-116 116a22.627 22.627 0 0 0 0 32 22.627 22.627 0 0 0 32 0l116-116v48a24 24 0 0 0 48 0v-104a24 24 0 0 0-24-24z"/>
+            <path fill="#C9d1D9" d="m464 336a24 24 0 0 0-24 24v48l-116-116a22.627 22.627 0 0 0-32 0 22.627 22.627 0 0 0 0 32l116 116h-48a24 24 0 0 0-24 24 24 24 0 0 0 24 24h104a24 24 0 0 0 24-24v-104a24 24 0 0 0-24-24z"/>
+           </g>
+         </svg>
         </div>
       </div>
       <div class="browser"></div>
@@ -356,11 +437,12 @@
   </div>
   <!-- Icons from flaticon ! Display none to only store them (and clone them in script when needed) -->
   <svg id="folder-icon" style="display:none" enable-background="new 0 0 468.293 468.293" version="1.1" viewBox="0 0 468.29 468.29" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <path d="m29.525 50.447h112c7.335 0 14.11 3.918 17.77 10.274l18.433 25.181c3.66 6.356 10.436 10.274 17.77 10.274h272.8v287.5c0 15.099-12.241 27.34-27.34 27.34h-413.61c-15.099 0-27.34-12.241-27.34-27.34v-255.6c0-21.133 3.265-42.14 9.68-62.276 2.35-9.037 10.508-15.345 19.845-15.345z" fill="#F6C358"/>
+    <path fill="#F6C358" d="m29.525 50.447h112c7.335 0 14.11 3.918 17.77 10.274l18.433 25.181c3.66 6.356 10.436 10.274 17.77 10.274h272.8v287.5c0 15.099-12.241 27.34-27.34 27.34h-413.61c-15.099 0-27.34-12.241-27.34-27.34v-255.6c0-21.133 3.265-42.14 9.68-62.276 2.35-9.037 10.508-15.345 19.845-15.345z"/>
     <rect x="42.615" y="91.473" width="359.96" height="152.06" fill="#EBF0F3"/>
-    <path d="m447.79 64.117h-112.86c-8.026 0-15.315 4.683-18.65 11.983l-19.313 42.267c-3.336 7.3-10.624 11.983-18.65 11.983h-278.31v260.16c0 15.099 12.241 27.34 27.34 27.34h413.61c15.099 0 27.34-12.241 27.34-27.34v-305.88c0-11.324-9.181-20.505-20.505-20.505z" fill="#FCD462"/>
+    <path fill="#FCD462" d="m447.79 64.117h-112.86c-8.026 0-15.315 4.683-18.65 11.983l-19.313 42.267c-3.336 7.3-10.624 11.983-18.65 11.983h-278.31v260.16c0 15.099 12.241 27.34 27.34 27.34h413.61c15.099 0 27.34-12.241 27.34-27.34v-305.88c0-11.324-9.181-20.505-20.505-20.505z"/>
   </svg>
 </body>
+<!-- App scripting -->
 <script type="module">
 'use strict';
 /* TreeList Js */
@@ -990,6 +1072,7 @@ const keyboard = new Shortcut();
 let basePath = './';
 let globalModel = null;
 let myTreeList = {};
+// Useful methods for navigation
 const DnDController = new DnD({
   target: '.dnd-container',
   onDropFile: (fileInfo, data) => {
@@ -1076,62 +1159,71 @@ const buildStatus = (data, element = {}) => {
   }
 };
 const switchView = data => {
-  document.querySelector('.browser').innerHTML = '';
-  buildPath(data);
-  buildStatus(data);
-  data.children.sort((a, b) => {
-    return a.type > b.type;
-  });
-  requestAnimationFrame(() => {
-    for (let i = 0; i < data.children.length; ++i) {
-      if (data.children[i].type === 'directory') { // Build a folder in UI
-        myTreeList.expandNode(data.id);
-        const folder = document.createElement('DIV');
-        const icon = document.querySelector('#folder-icon').cloneNode(true);
-        const label = document.createElement('P');
-        label.innerHTML = data.children[i].name;
-        icon.style.display = 'block';
-        folder.appendChild(icon);
-        folder.appendChild(label);
-        document.querySelector('.browser').appendChild(folder);
-        folder.addEventListener('click', () => {
-          switchView(data.children[i]);
-        }, false);
-      } else if (data.children[i].type === 'image') { // Build a file in UI
-        const file = document.createElement('DIV');
-        const img = document.createElement('IMG');
-        const label = document.createElement('P');
-        label.innerHTML = data.children[i].name;
-        img.loading = 'lazy'; // Specify lazy loading for browser to load album faster
-        file.appendChild(img);
-        file.appendChild(label);
-        document.querySelector('.browser').appendChild(file);
-        // Setting image source (either thumbnail or real size)
-        loadImage(img, `file://${basePath}/_thumbnails/${data.children[i].id}.jpg`, `file://${data.children[i].path}`);
-        file.addEventListener('click', () => {
-          slideShow(data, data.children[i]);
-        }, false);
+  // Clicked node has children
+  if (data.children) {
+    document.querySelector('.browser').innerHTML = '';
+    buildPath(data);
+    buildStatus(data);
+    data.children.sort((a, b) => {
+      return a.type > b.type;
+    });
+    requestAnimationFrame(() => {
+      for (let i = 0; i < data.children.length; ++i) {
+        if (data.children[i].type === 'directory') { // Build a folder in UI
+          myTreeList.expandNode(data.id);
+          const folder = document.createElement('DIV');
+          const icon = document.querySelector('#folder-icon').cloneNode(true);
+          const label = document.createElement('P');
+          folder.setAttribute('data-before', data.children[i].children.length);
+          label.innerHTML = data.children[i].name;
+          icon.style.display = 'block';
+          folder.appendChild(icon);
+          folder.appendChild(label);
+          document.querySelector('.browser').appendChild(folder);
+          folder.addEventListener('click', () => {
+            switchView(data.children[i]);
+          }, false);
+        } else if (data.children[i].type === 'image') { // Build a file in UI
+          const file = document.createElement('DIV');
+          const img = document.createElement('IMG');
+          const label = document.createElement('P');
+          label.innerHTML = data.children[i].name;
+          img.loading = 'lazy'; // Specify lazy loading for browser to load album faster
+          file.appendChild(img);
+          file.appendChild(label);
+          document.querySelector('.browser').appendChild(file);
+          // Setting image source (either thumbnail or real size)
+          loadImage(img, `file://${basePath}/_thumbnails/${data.children[i].id}.jpg`, `file://${data.children[i].path}`);
+          file.addEventListener('click', () => {
+            slideShow(data, data.children[i]);
+          }, false);
 
-        file.addEventListener('mouseenter', () => {
-          buildStatus(data, data.children[i]);
-        }, false);
-        file.addEventListener('mouseleave', () => {
-          buildStatus(data);
-        }, false);
-      } else if (data.children[i].type === 'video') { // Build a file in UI
-        const file = document.createElement('DIV');
-        const label = document.createElement('P');
-        const vid = document.createElement('VIDEO');
-        label.innerHTML = data.children[i].name;
-        vid.setAttribute('controls', 'here');
-        vid.src = `file://${data.children[i].path}`;
-        vid.load();
-        file.appendChild(vid);
-        file.appendChild(label);
-        document.querySelector('.browser').appendChild(file);
+          file.addEventListener('mouseenter', () => {
+            buildStatus(data, data.children[i]);
+          }, false);
+          file.addEventListener('mouseleave', () => {
+            buildStatus(data);
+          }, false);
+        } else if (data.children[i].type === 'video') { // Build a file in UI
+          const file = document.createElement('DIV');
+          const label = document.createElement('P');
+          const vid = document.createElement('VIDEO');
+          label.innerHTML = data.children[i].name;
+          vid.setAttribute('controls', 'here');
+          vid.src = `file://${data.children[i].path}`;
+          vid.load();
+          file.appendChild(vid);
+          file.appendChild(label);
+          document.querySelector('.browser').appendChild(file);
+        }
       }
-    }
-  });
+      document.querySelector('.browser').scrollTop = 0;
+    });
+  } else {
+    let name = data.path.split('\\');
+    name = name[name.length - 2]; // Since path is for an image, we take its parent folder
+    slideShow(findInModel(name, globalModel), data);
+  }
 };
 const loadImage = (img, thumb, full) => {
   requestAnimationFrame(() => {
@@ -1277,9 +1369,20 @@ const updateZoom = event => {
   }
   document.documentElement.style.setProperty('--grid-size', `${width}px`);
 };
+const toggleFullscreen = () => {
+  // Dat gist : https://gist.github.com/demonixis/5188326
+  const element = document.body;
+	if (event instanceof HTMLElement) { element = event; }
+  const isFullscreen = document.webkitIsFullScreen || document.mozFullScreen || false;
+	element.requestFullScreen = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || (() => { return false; });
+	document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || (() => { return false; });
+	isFullscreen ? document.cancelFullScreen() : element.requestFullScreen();
+};
+// App init
 document.querySelector('.slide-zoom').addEventListener('input', updateZoom, false);
 document.querySelector('#grid-size-less').addEventListener('click', updateZoom, false);
 document.querySelector('#grid-size-more').addEventListener('click', updateZoom, false);
+document.querySelector('#fullscreen').addEventListener('click', toggleFullscreen, false);
 // Load previously saved JSON
 if (window.localStorage.getItem('Callery-Library')) {
   fetch(window.localStorage.getItem('Callery-Library'))
