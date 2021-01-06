@@ -9,7 +9,7 @@ Use the python script to generate a `JSON` which will contain all the required i
 
 # Get started
 
-Install `python` (3) and `Pillow`, then run the `build.py -t` script, with your library root path, then drop the created `JSON` in the `index.html` file to browse it!
+Install `python` (version 3) and `Pillow`, then run the `build.py -t` script, with your library root path, then drop the created `JSON` in the `index.html` file to browse it!
 
 - Use the `-t`/`--thumbs` flag in `build.py` to generate thumbnails, to fasten the browsing.
 - Use the `-m`/`--minify` flag to make the `JSON` output file lighter.
@@ -22,5 +22,6 @@ Sorry, this website only works on a local machine for security reasons (otherwis
 
 <p>
   <img src="/screenshots/browser.png" width="960" alt="callery-browser"/>
+  <br><br>
   <img src="/screenshots/viewer.png" width="960" alt="callery-viewer"/>
 </p>
