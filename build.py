@@ -86,13 +86,10 @@ def pathToDict(args, folder, total):
             objKey['children'] = children
             return obj
         else: # Crawler met a file
-            print(folder)
             extension = folder.split('.')[-1].lower() # lowercase extension to have consistent testing
-            print(extension)
             if extension == 'jpg' or extension == 'png' or extension == 'bmp':
                 image = Image.open(folder)
                 if args['thumbs'] == True: # Generating 256/256 thumb JPG, keeping aspect ratio
-                    print('thumb')
                     outfile = path.join(args['folder'], '_thumbnails', str(objectId) + '.jpg')
                     image.thumbnail((256, 256), Image.ANTIALIAS)
                     # Convert savage RGBA in RGB
