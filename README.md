@@ -9,7 +9,8 @@ Use the python script to generate a `JSON` which will contain all the required i
 
 # Get started
 
-Install `python` (version 3) and `Pillow`, then run the `build.py -t` script, with your library root path, then drop the created `JSON` in the `index.html` file to browse it!
+Install the dependencies : `pip3 install --user -r requirements.txt`.
+Then run the `build.py -t` script, with your library root path, then drop the created `JSON` in the `index.html` file to browse it!
 
 - Use the `-t`/`--thumbs` flag in `build.py` to generate thumbnails, to fasten the browsing.
 - Use the `-m`/`--minify` flag to make the `JSON` output file lighter.

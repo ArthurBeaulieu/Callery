@@ -2,7 +2,7 @@
 
 
 # Python imports
-import os
+from os import mkdir, path, listdir, walk
 import sys
 import argparse
 import json
@@ -24,11 +24,6 @@ def main():
     ap.add_argument('-t', '--thumbs', help='Generate 200px thumbails. Required if any new pictures are in folder', action='store_true')
     ap.add_argument('-m', '--minify', help='Minify the JSON output file', action='store_true')
     args = vars(ap.parse_args())
-    # Preventing path from missing its trailing slash (or backslash for win compatibility)
-    if not args['folder'].endswith('\\') and not args['folder'].endswith('/'):
-        print('  Provided path isn\'t a directory. It must ends with a \\ or a /')
-        print('> Exiting build.py')
-        sys.exit(-1)
     # Crawl given path and build JSON
     crawlFolder(args)
 
@@ -41,11 +36,11 @@ def crawlFolder(args):
     print('##----------------------------------------##\n')
     print('> Retrieving folder information...')
     try:
-        os.mkdir(args['folder'] + '_thumbnails')
+        mkdir(path.join(args['folder'], '_thumbnails'))
     except:
         pass
     files = folders = 0
-    for dirname, dirnames, filenames in os.walk(args['folder']):
+    for dirname, dirnames, filenames in walk(args['folder']):
         if dirname.find('_thumbnails') == -1: # Exclude thumbnails from count
             files += len(filenames)
             folders += len(dirnames)
@@ -54,7 +49,7 @@ def crawlFolder(args):
         sys.exit(-1)
     else: # Recursive method to build any sub-elements in provided path, and generate thumbnails if asked to
         print('> Creating JSON dump. This may take a while...\n')
-        filename = args['folder'] + 'LibraryData.json'
+        filename = path.join(args['folder'], 'LibraryData.json')
         with open(filename, 'w', encoding='utf-8') as file:
             if args['minify']:
                 json.dump(pathToDict(args, args['folder'], files + folders), file, ensure_ascii=False, separators=(',', ':'))
@@ -64,38 +59,38 @@ def crawlFolder(args):
 
 
 objectId = 0 # UID for any element in JSON output (folder ands files)
-def pathToDict(args, path, total):
-    if os.path.basename(path) != '_thumbnails': # We ignore thumbnails
+def pathToDict(args, folder, total):
+    if path.basename(folder) != '_thumbnails': # We ignore thumbnails
         global objectId
-        obj = { os.path.basename(path): {} }
-        objKey = obj[os.path.basename(path)]
+        obj = { path.basename(folder): {} }
+        objKey = obj[path.basename(folder)]
         objKey['id'] = objectId
-        objKey['name'] = os.path.basename(path)
+        objKey['name'] = path.basename(folder)
         # Root element must have a key to be parsed in Js later
         if objKey['name'] == '':
-            obj = { os.path.split(os.path.dirname(path))[-1]: {} }
-            objKey = obj[os.path.split(os.path.dirname(path))[-1]]
+            obj = { path.split(path.dirname(folder))[-1]: {} }
+            objKey = obj[path.split(path.dirname(folder))[-1]]
             objKey['id'] = objectId
-            objKey['name'] = os.path.split(os.path.dirname(path))[-1]
-            objKey['path'] = os.path.abspath(path) # Add folder base path
+            objKey['name'] = path.split(path.dirname(folder))[-1]
+            objKey['path'] = path.abspath(folder) # Add folder base path
         # Crawler met a directory. Recurse call on each of its elements
-        if os.path.isdir(path):
+        if path.isdir(folder):
             objectId = objectId + 1
             progressBar(objectId, total)
             objKey['type'] = 'directory'
-            objKey['path'] = os.path.abspath(path) # Add folder base path
+            objKey['path'] = path.abspath(folder) # Add folder base path
             children = []
-            childrenDict = dict((key, obj[key]) for obj in [pathToDict(args, os.path.join(path, x), total) for x in os.listdir(path)] for key in obj)
+            childrenDict = dict((key, obj[key]) for obj in [pathToDict(args, path.join(folder, x), total) for x in listdir(folder)] for key in obj)
             for x in childrenDict.values():
                 children.append(x)
             objKey['children'] = children
             return obj
         else: # Crawler met a file
-            extension = path.split('.')[-1].lower() # lowercase extension to have consistent testing
+            extension = folder.split('.')[-1].lower() # lowercase extension to have consistent testing
             if extension == 'jpg' or extension == 'png' or extension == 'bmp':
-                image = Image.open(path)
+                image = Image.open(folder)
                 if args['thumbs'] == True: # Generating 256/256 thumb JPG, keeping aspect ratio
-                    outfile = args['folder'] + '_thumbnails/' + str(objectId) + '.jpg'
+                    outfile = path.join(args['folder'], '_thumbnails', str(objectId) + '.jpg')
                     image.thumbnail((256, 256), Image.ANTIALIAS)
                     # Convert savage RGBA in RGB
                     if image.mode in ('RGBA', 'P'):
@@ -103,8 +98,8 @@ def pathToDict(args, path, total):
                     image.save(outfile, 'JPEG')
                 objKey['type'] = 'image'
                 objKey['extension'] = extension
-                objKey['size'] = os.path.getsize(path)
-                objKey['path'] = os.path.abspath(path)
+                objKey['size'] = path.getsize(folder)
+                objKey['path'] = path.abspath(folder)
                 objKey['width'] = image.size[0]
                 objKey['height'] = image.size[1]
                 objKey['exif'] = {}
@@ -133,8 +128,8 @@ def pathToDict(args, path, total):
             elif extension == 'mp4' or extension == 'avi' or extension == 'mov':
                 objKey['type'] = 'video'
                 objKey['extension'] = extension
-                objKey['size'] = os.path.getsize(path)
-                objKey['path'] = os.path.abspath(path)
+                objKey['size'] = path.getsize(folder)
+                objKey['path'] = path.abspath(folder)
                 objectId = objectId + 1
                 progressBar(objectId, total)
                 return obj
