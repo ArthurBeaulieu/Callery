@@ -2,8 +2,8 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>Callery</title>
-  <link href="https://raw.githubusercontent.com/ArthurBeaulieu/ArthurBeaulieu/master/img/logo.png" rel="icon" type="image/png">
+  <title>Callery – 0.1.0</title>
+  <link href="https://raw.githubusercontent.com/ArthurBeaulieu/ArthurBeaulieu/master/assets/img/ab-logo.png" rel="icon" type="image/png">
   <!--  Callery - A local viewer for your photography library  -->
   <!--                                                            -->
   <!--  First run the build.py file with the folder you want to   -->
@@ -30,6 +30,8 @@
     }
 
     html, body {
+      background-color: #2d333b;
+      color: #C9D1D9;
       font-family: sans-serif;
       font-size: 62.5%;
       height: 100%;
@@ -65,8 +67,8 @@
     }
 
     .dnd-container {
-      background-color: rgba(100, 100, 255, 0.05);
-      border: solid 3px rgba(127, 127, 127, 0.15);
+      background-color: #22272e;
+      border: solid 3px rgba(255, 255, 255, .75);
       border-radius: 5px;
       height: 50%;
       width: 70%;
@@ -93,14 +95,14 @@
     }
 
     .aside {
-      background-color: #0D1117;
+      background-color: #22272e;
       height: 100%;
       width: 280px;
     }
 
     .aside-header {
       align-items: center;
-      background-color: #161b22;
+      background-color: #2d333b;
       border-bottom: solid 1px grey;
       display: flex;
       height: 4rem;
@@ -142,7 +144,7 @@
 
     .controls {
       align-items: center;
-      background-color: #161b22;
+      background-color: #2d333b;
       border-bottom: solid 1px grey;
       display: flex;
       height: 4rem;
@@ -204,8 +206,8 @@
     }
 
     .browser {
-      align-items: stretch;
-      background-image: linear-gradient(#161b22, rgba(72, 171, 175, .1) 85%);
+      align-items: flex-end;
+      background-image: linear-gradient(200deg, #323b48, #151c26 85%);
       display: grid;
       gap: 1rem;
       height: calc(100% - 4rem - 2rem);
@@ -269,7 +271,7 @@
 
     .status-bar {
       align-items: center;
-      background-color: #161b22;
+      background-color: #2d333b;
       border-top: solid 1px grey;
       display: flex;
       height: 2rem;
@@ -1083,9 +1085,10 @@ const DnDController = new DnD({
     }
   }
 });
+
 const loadJSON = (fileInfo, data) => {
   // Update LS with dropped file
-  window.localStorage.setItem('Callery-Library', `file://${data[Object.keys(data)[0]].path}/LibraryData.json`);
+  window.localStorage.setItem('Callery-Library', `file://${data[Object.keys(data)[0]].output}/_CalleryData.json`);
   document.querySelector('.library-new').style.display = 'none';
   document.querySelector('.library-view').style.display = 'flex';
   basePath = data[Object.keys(data)[0]].path;
@@ -1099,6 +1102,7 @@ const loadJSON = (fileInfo, data) => {
   });
   switchView(data[Object.keys(data)[0]]);
 };
+
 const findInModel = (name, model) => {
   if (model.name === name) {
     return model;
@@ -1111,6 +1115,7 @@ const findInModel = (name, model) => {
    }
    return null;
 };
+
 const buildPath = (data) => {
   document.querySelector('.view-title').innerHTML = '';
   let path  = data.path.split('\\');
@@ -1133,6 +1138,7 @@ const buildPath = (data) => {
     document.querySelector('.view-title').appendChild(element);
   }
 };
+
 const buildStatus = (data, element = {}) => {
   function precisionRound(value, precision) {
     const multiplier = Math.pow(10, precision || 0);
@@ -1158,6 +1164,7 @@ const buildStatus = (data, element = {}) => {
     return;
   }
 };
+
 const switchView = data => {
   // Clicked node has children
   if (data.children) {
@@ -1193,7 +1200,7 @@ const switchView = data => {
           file.appendChild(label);
           document.querySelector('.browser').appendChild(file);
           // Setting image source (either thumbnail or real size)
-          loadImage(img, `file://${basePath}/_thumbnails/${data.children[i].id}.jpg`, `file://${data.children[i].path}`);
+          loadImage(img, `file://${data.children[i].thumb}`, `file://${data.children[i].path}`);
           file.addEventListener('click', () => {
             slideShow(data, data.children[i]);
           }, false);
@@ -1225,6 +1232,7 @@ const switchView = data => {
     slideShow(findInModel(name, globalModel), data);
   }
 };
+
 const loadImage = (img, thumb, full) => {
   requestAnimationFrame(() => {
     fetch(thumb, { method: 'HEAD' }).then(res => {
@@ -1238,6 +1246,7 @@ const loadImage = (img, thumb, full) => {
     });
   });
 };
+
 const slideShow = (data, selected) => {
   const slideshowThumbs = [];
   document.querySelector('.slideshow').style.display = 'block';
@@ -1254,7 +1263,7 @@ const slideShow = (data, selected) => {
       document.querySelector('.slideshow-controls').appendChild(img);
       slideshowThumbs.push(img);
       // Setting image source (either thumbnail or real size)
-      loadImage(img, `file://${basePath}/_thumbnails/${data.children[i].id}.jpg`, `file://${data.children[i].path}`);
+      loadImage(img, `file://${data.children[i].thumb}`, `file://${data.children[i].path}`);
       img.addEventListener('click', () => {
         document.querySelector('.slideshow-viewer').innerHTML = '';
         const newImg = document.createElement('IMG');
@@ -1268,7 +1277,7 @@ const slideShow = (data, selected) => {
           }
         }
         document.querySelector('.slideshow-viewer').appendChild(newImg);
-        loadImage(newImg, `file://${data.children[i].path}`, `file://${data.children[i].path}`);
+        loadImage(newImg, `file://${data.children[i].thumb}`, `file://${data.children[i].path}`);
       }, false);
     }
   }
@@ -1342,6 +1351,7 @@ const slideShow = (data, selected) => {
   keyboard.register('ArrowLeft', prevImg);
   keyboard.register('ArrowRight', nextImg);
 };
+
 const allowedWidth = [123, 135, 150, 168, 190, 218, 256];
 const updateZoom = event => {
   let width = 168;
@@ -1369,6 +1379,7 @@ const updateZoom = event => {
   }
   document.documentElement.style.setProperty('--grid-size', `${width}px`);
 };
+
 const toggleFullscreen = () => {
   // Dat gist : https://gist.github.com/demonixis/5188326
   const element = document.body;
@@ -1378,6 +1389,7 @@ const toggleFullscreen = () => {
 	document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || (() => { return false; });
 	isFullscreen ? document.cancelFullScreen() : element.requestFullScreen();
 };
+
 // App init
 document.querySelector('.slide-zoom').addEventListener('input', updateZoom, false);
 document.querySelector('#grid-size-less').addEventListener('click', updateZoom, false);

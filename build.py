@@ -23,20 +23,27 @@ def main():
     ap.add_argument('folder', help='The input folder path to crawl (absolute or relative), mind to run with -t if new files are in scanned folder')
     ap.add_argument('-t', '--thumbs', help='Generate 200px thumbails. Required if any new pictures are in folder', action='store_true')
     ap.add_argument('-m', '--minify', help='Minify the JSON output file', action='store_true')
+    ap.add_argument('-o', '--output', help='Where to put the JSON output file')
     args = vars(ap.parse_args())
     # Crawl given path and build JSON
     crawlFolder(args)
 
 
+# Method to recursively call pathToDict to build JSON structure
 def crawlFolder(args):
     print('##----------------------------------------##')
     print('##                                        ##')
-    print('##    Callery build.py - version 0.0.1    ##')
+    print('##    Callery build.py - version 0.1.0    ##')
     print('##                                        ##')
     print('##----------------------------------------##\n')
     print('> Retrieving folder information...')
     try:
-        mkdir(path.join(args['folder'], '_thumbnails'))
+        if args['thumbs'] == True:
+            if args['output'] is not None: # User specified a output folder
+                mkdir(path.join(args['output'], '_thumbnails'))
+            else: # Default location is input folder
+                mkdir(path.join(args['folder'], '_thumbnails'))
+            
     except:
         pass
     files = folders = 0
@@ -49,7 +56,10 @@ def crawlFolder(args):
         sys.exit(-1)
     else: # Recursive method to build any sub-elements in provided path, and generate thumbnails if asked to
         print('> Creating JSON dump. This may take a while...\n')
-        filename = path.join(args['folder'], 'LibraryData.json')
+        if args['output'] is not None: # User specified a output folder
+            filename = path.join(args['output'], '_CalleryData.json')
+        else: # Default location is input folder
+            filename = path.join(args['folder'], '_CalleryData.json')      
         with open(filename, 'w', encoding='utf-8') as file:
             if args['minify']:
                 json.dump(pathToDict(args, args['folder'], files + folders), file, ensure_ascii=False, separators=(',', ':'))
@@ -67,12 +77,16 @@ def pathToDict(args, folder, total):
         objKey['id'] = objectId
         objKey['name'] = path.basename(folder)
         # Root element must have a key to be parsed in Js later
-        if objKey['name'] == '':
+        if objectId == 0:
             obj = { path.split(path.dirname(folder))[-1]: {} }
             objKey = obj[path.split(path.dirname(folder))[-1]]
             objKey['id'] = objectId
             objKey['name'] = path.split(path.dirname(folder))[-1]
-            objKey['path'] = path.abspath(folder) # Add folder base path
+            objKey['path'] = path.abspath(folder) # Add folder base path        
+            if args['output'] is not None: # User specified a output folder
+                objKey['output'] = path.abspath(args['output']) # Add folder base path
+            else: # Default location is input folder
+                objKey['output'] = path.abspath(folder) # Add folder base path   
         # Crawler met a directory. Recurse call on each of its elements
         if path.isdir(folder):
             objectId = objectId + 1
@@ -90,7 +104,10 @@ def pathToDict(args, folder, total):
             if extension == 'jpg' or extension == 'png' or extension == 'bmp':
                 image = Image.open(folder)
                 if args['thumbs'] == True: # Generating 256/256 thumb JPG, keeping aspect ratio
-                    outfile = path.join(args['folder'], '_thumbnails', str(objectId) + '.jpg')
+                    if args['output'] is not None: # User specified a output folder
+                        outfile = path.join(args['output'], '_thumbnails', str(objectId) + '.jpg')
+                    else: # Default location is input folder
+                        outfile = path.join(args['folder'], '_thumbnails', str(objectId) + '.jpg')
                     image.thumbnail((256, 256), Image.ANTIALIAS)
                     # Convert savage RGBA in RGB
                     if image.mode in ('RGBA', 'P'):
@@ -100,6 +117,7 @@ def pathToDict(args, folder, total):
                 objKey['extension'] = extension
                 objKey['size'] = path.getsize(folder)
                 objKey['path'] = path.abspath(folder)
+                objKey['thumb'] = path.abspath(outfile)
                 objKey['width'] = image.size[0]
                 objKey['height'] = image.size[1]
                 objKey['exif'] = {}
@@ -138,6 +156,7 @@ def pathToDict(args, folder, total):
                 progressBar(objectId, total)
                 return {}
     return {}
+
 
 def progressBar(current, total, barLength = 30):
     percent = float(current) * 100 / total
